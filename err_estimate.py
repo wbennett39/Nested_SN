@@ -1,0 +1,1 @@
+# this notebook will perform an angular error estimation analysis on a 1d steady problem using nested quadratures

@@ -2,7 +2,7 @@ from typing import Any
 import numpy as np
 from chaospy.quadrature import clenshaw_curtis
 import math
-import quadpy
+from functions import quadrature
 
 def cc_quad(N):
     x, w= clenshaw_curtis(N-1,(-1,1))
@@ -16,12 +16,12 @@ def cc_quad(N):
 
 
 class scalar_flux_class:
-    def __init__(self, N_ang, N_cells, mesh, wynn_epsilon):
+    def __init__(self, N_ang, N_cells, mesh, wynn_epsilon, quad_type = 'cc'):
         self.N_ang = N_ang
         self.N_cells = N_cells
         self.mesh = mesh
         self.wynn_epsilon = wynn_epsilon
-        ns_list = np.array([2,6,16,46,136])
+        ns_list = np.array([2,6,16,46,136, 406, 1216, 3646])
         narg = np.argmin(np.abs(ns_list-N_ang))
         self.ns_list = ns_list[0:narg+1] 
         if wynn_epsilon == True:
@@ -39,7 +39,11 @@ class scalar_flux_class:
 
         self.weights_matrix()
         self.phi = np.zeros(self.mesh.size-1)
-        self.mus, self.ws = cc_quad(self.N_ang)
+        if quad_type == 'cc':
+            self.mus, self.ws = cc_quad(self.N_ang)
+        elif quad_type == 'gauss':
+            self.mus, self.ws = quadrature(self.N_ang, 'gauss_lobatto')
+
         
         # print(self.ws, 'weights')
     
@@ -144,10 +148,14 @@ class scalar_flux_class:
                 #     print('potential working precision issue')
                 tableau[r,w] = tableau[r-1,w-2] + 1/(tableau[r,w-1] - tableau[r-1,w-1])
         return tableau
+    
+    def J(self, psi):
+        return np.sum(psi * self.mus, self.ws) * 0.5
 
 
     def quadrature(psik, w):
         return np.sum(psik*w)
+    
 
 
 class sigma_class:
