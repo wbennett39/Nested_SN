@@ -73,7 +73,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         if max_err <= tol:
             tolerance_achieved = True
             if wynn_epsilon == True and laststep == True:
-                phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True)
+                phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
                 phi_ob_we.make_phi(psi, ws)
                 phi = phi_ob_we.phi
                 tableau = phi_ob_we.tableau

@@ -40,8 +40,10 @@ class scalar_flux_class:
         self.weights_matrix()
         self.phi = np.zeros(self.mesh.size-1)
         if quad_type == 'cc':
+            print('Clenshaw-Curtis quadrature')
             self.mus, self.ws = cc_quad(self.N_ang)
         elif quad_type == 'gauss':
+            print('Gaussian quadrature')
             self.mus, self.ws = quadrature(self.N_ang, 'gauss_lobatto')
 
         

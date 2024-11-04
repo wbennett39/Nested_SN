@@ -34,12 +34,15 @@ def perform_convergence():
     plt.figure('Scalar flux')
     plt.loglog(N_ang_list, cc_err[0], '-^', mfc = 'none')
     plt.loglog(N_ang_list, gauss_err[0], '-o', mfc = 'none')
+    plt.savefig('flux_converge.pdf')
     plt.show()
 
     plt.figure('J')
     plt.loglog(N_ang_list, cc_err[1], 'r-^', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, gauss_err[1], 'b-o', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, cc_err[2], 'g-^', mfc = 'none',  label = 'right')
-    plt.loglog(N_ang_list, gauss_err[2], 'p-o', mfc = 'none', label = 'right')
+    plt.loglog(N_ang_list, gauss_err[2], 'y-o', mfc = 'none', label = 'right')
+    plt.legend()
+    plt.savefig('J_converge.pdf')
     plt.show()
 
