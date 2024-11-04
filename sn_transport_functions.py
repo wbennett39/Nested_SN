@@ -150,7 +150,7 @@ class scalar_flux_class:
         return tableau
     
     def J(self, psi):
-        return np.sum(psi * self.mus, self.ws) * 0.5
+        return np.sum(psi * self.mus* self.ws) * 0.5
 
 
     def quadrature(psik, w):
