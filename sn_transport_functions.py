@@ -101,7 +101,7 @@ class scalar_flux_class:
                     self.tableau[k, :] = tableau
                     # print(self.tableau[k,1:,1][-1]-self.phi[k])
    
-                    self.phi[k] = tableau[3:,3][-1] 
+                    # self.phi[k] = tableau[3:,3][-1] 
 
         # assert(np.abs(np.sum(self.ws)-2)<=1e-10)
         # print(np.abs(np.sum(self.ws)-2))
@@ -294,3 +294,10 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
                 
 
 
+def convergence_estimator(xdata, ydata, method = 'linear_regression'):
+    if method == 'linear_regression':
+        lastpoint = ydata[-1]
+        ynew = np.log(ydata[:-1]-lastpoint)
+        a, b = np.polyfit(xdata[:-1], ynew,1)
+        err_estimate = np.exp(a) * np.exp(ydata[-1] * b)
+        return err_estimate
