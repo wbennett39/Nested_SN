@@ -9,7 +9,7 @@ def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 
 def perform_convergence():
-    N_ang_list = np.array([2,6,16,46])
+    N_ang_list = np.array([2,6,16,46, 136])
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
     N_cells = 100
