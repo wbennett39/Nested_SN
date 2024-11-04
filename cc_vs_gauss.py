@@ -34,7 +34,7 @@ def perform_convergence():
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
     err_estimate = np.zeros(N_ang_list.size)
     for ix in range(N_cells):
-        phi_err_estimate[:, ix] = estimate_error(N_ang_list, tableaucc)
+        phi_err_estimate[:, ix] = estimate_error(N_ang_list, tableaucc[ix])
     for ang in range(N_ang_list.size):
         err_estimate[ang] = RMSE(phi_err_estimate[ang,:], phi_err_estimate[ang,:]*0)
 
@@ -56,9 +56,15 @@ def perform_convergence():
     plt.show()
 
 
+    plt.figure('error vs x')
+    plt.plot(cell_centersb, phi_err_estimate[-1,:])
+    plt.plot(cell_centersb, np.abs(phicc - phib), '--')
+
+    plt.show()
+
 def estimate_error(ang_list, tableau):
     err_estimate = np.zeros(ang_list.size)
     for ia in range(2, ang_list.size):
-        print(tableau[1:, 1][0:ia])
+        # print(tableau[1:, 1][0:ia])
         err_estimate[ia] = convergence_estimator(ang_list[0:ia], tableau[1:, 1][0:ia])
     return err_estimate
