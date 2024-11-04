@@ -32,10 +32,11 @@ def perform_convergence():
         cc_err[2, iang] = RMSE(Jb[1], Jcc[1])
 
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
+    err_estimate = np.zeros(N_ang_list.size)
     for ix in range(N_cells):
         phi_err_estimate[:, ix] = estimate_error(N_ang_list, tableaucc)
-    
-    err_estimate = RMSE(phi_err_estimate, phi_err_estimate*0)
+    for ang in range(N_ang_list):
+        err_estimate = RMSE(phi_err_estimate[ang,:], phi_err_estimate[ang,:]*0)
 
     plt.figure('Scalar flux')
     plt.loglog(N_ang_list, cc_err[0], '-^', mfc = 'none')

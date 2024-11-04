@@ -299,5 +299,5 @@ def convergence_estimator(xdata, ydata, method = 'linear_regression'):
         lastpoint = ydata[-1]
         ynew = np.log(ydata[:-1]-lastpoint)
         a, b = np.polyfit(xdata[:-1], ynew,1)
-        err_estimate = np.exp(a) * np.exp(ydata[-1] * b)
+        err_estimate = (np.exp(a) * np.exp(ydata[-1] * b))[-1]
         return err_estimate
