@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
 def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-          opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0])):
+          opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'cc'):
     # initialize mesh
     mesh_ob = mesh_class(N_cells, L, opacity_function)
     mesh_ob.make_mesh()
@@ -25,7 +25,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     IC_ob.make_IC()
     angular_flux_IC = IC_ob.angular_flux
     # Initialize scalar flux class
-    phi_ob = scalar_flux_class(N_ang, N_cells, mesh, False)
+    phi_ob = scalar_flux_class(N_ang, N_cells, mesh, False, quad_type= quad_type)
     # Initialize angles
     mus, ws = cc_quad(N_ang)
     # print(mus, 'mus')
@@ -73,7 +73,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         if max_err <= tol:
             tolerance_achieved = True
             if wynn_epsilon == True and laststep == True:
-                phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True)
+                phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
                 phi_ob_we.make_phi(psi, ws)
                 phi = phi_ob_we.phi
                 tableau = phi_ob_we.tableau
@@ -93,7 +93,10 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     cell_centers = np.zeros(N_cells)
     for ix in range(N_cells):
         cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
-    return psi, phi, cell_centers, mus, tableau
+    J = np.zeros(2)
+    J[0] = phi_ob.J(psi[:,0])
+    J[1] = phi_ob.J(psi[:,-1])
+    return psi, phi, cell_centers, mus, tableau, J
 
 
 
