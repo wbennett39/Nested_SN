@@ -32,7 +32,9 @@ class scalar_flux_class:
         self.xs_mat = np.zeros((self.ns_list.size, self.ns_list[-1] ))
         self.index_mat = np.zeros((self.ns_list.size, self.N_ang ))
         self.nested_phi = np.zeros((self.ns_list.size, self.N_cells))
+        self.nested_J = np.zeros((self.ns_list.size, self.N_cells))
         self.tableau = np.zeros((self.N_cells, self.ns_list.size+1,self.ns_list.size+1))
+        self.tableauJp = np.zeros((self.N_cells, self.ns_list.size+1,self.ns_list.size+1))
         # store all Clenshaw-Curtis weights if WE acceleration is activated
        
         
@@ -79,6 +81,7 @@ class scalar_flux_class:
         # psi_new.append(psi[-1])
         # print(xs_test, 'xs')
         return np.array(psi_new)
+    
         
     
     def make_phi(self, psi, ws):
@@ -91,14 +94,16 @@ class scalar_flux_class:
                 if self.wynn_epsilon == True:
                     # for n in range(self.ns_list.size):
                         # print(n, 'n')
-                    self.nested_phi[:, k] = self.make_nested_phi(psi[:,k])
+                    self.nested_phi[:, k], self.nested_J[:,k] = self.make_nested_phi(psi[:,k])
                     tableau = self.wynn_epsilon_algorithm(self.nested_phi[:,k])
+                    tableau_J = self.wynn_epsilon_algorithm(self.nested_J[:,k])
                     
                     # self.phi[k] = tableau[3:,3]
                     # print(tableau[3:,3][0], 'we phi')
                     # print(self.phi[k], 'phi')
                     
                     self.tableau[k, :] = tableau
+                    self.tableauJp[k,:] = tableau_J
                     # print(self.tableau[k,1:,1][-1]-self.phi[k])
    
                     # self.phi[k] = tableau[3:,3][-1] 
@@ -110,6 +115,7 @@ class scalar_flux_class:
 
     def make_nested_phi(self, psi):
         phi_list = np.zeros(self.ns_list.size)
+        Jp_list = np.zeros(self.ns_list.size)
         # self.make_phi(psi, self.w_mat[-1])
         # phi = np.sum(psi[:]*self.w_mat[-1])*0.5
         phi = np.sum(psi[:]*self.ws)*0.5
@@ -125,6 +131,8 @@ class scalar_flux_class:
             # print(self.w_mat[-ix-1, 0:self.ns_list[-ix-1]])
             # phi_list[-ix] = self.make_phi(psi_lower, self.w_mat[-ix, 0:self.ns_list[ix]])
             phi_list[-ix] = np.sum(psi_lower[:]*self.w_mat[-ix, 0:self.ns_list[-ix]])*0.5
+            Jp_list[-ix] = np.sum(psi_lower[:]*self.w_mat[-ix, 0:self.ns_list[-ix]] * self.xs_mat[-ix, 0:self.ns_list[-ix]])*0.5
+
             # print(self.ns_list[-ix-1])
             # print(self.w_mat[-ix-1, 0:self.ns_list[-ix-1]], 'ws')
         
@@ -134,7 +142,7 @@ class scalar_flux_class:
 
         # print(phi_list[-1]-phi)
         # print(len(phi_list))
-        return np.array(phi_list)
+        return np.array(phi_list), np.array(Jp_list)
 
     def  wynn_epsilon_algorithm(self, S):
         n = S.size
@@ -309,3 +317,22 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
     return err_estimate
     
         # return a
+
+def trapezoid_integrator(x_array, y_array, const_dx = True):
+    if const_dx == True:
+        dx = x_array[1]-x_array[0]
+
+        res = 0 
+        res +=  y_array[0]
+        res +=  y_array[-1]
+        for it in range(1, y_array.size -1):
+            res += 2  *y_array[it]
+
+        return 0.5 * dx * res
+    
+def reaction_rate(xs, phi, sigma, x1, x2):
+
+    index1 = np.argmin(np.abs(xs-x1))
+    index2 = np.argmin(np.abs(xs-x2))
+    result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
+

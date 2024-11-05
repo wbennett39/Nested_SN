@@ -77,9 +77,11 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 phi_ob_we.make_phi(psi, ws)
                 phi = phi_ob_we.phi
                 tableau = phi_ob_we.tableau
+                tableau_J = phi_ob_we.tableauJp
                 # print(phi-phi_old)
             else:
                 tableau = phi_ob.tableau
+                tableau_J = phi_ob.tableauJp
 
     for iang, mu in enumerate(mus):
             if source == 'input':
@@ -96,7 +98,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     J = np.zeros(2)
     J[0] = phi_ob.J(psi[:,0])
     J[1] = phi_ob.J(psi[:,-1])
-    return psi, phi, cell_centers, mus, tableau, J
+    return psi, phi, cell_centers, mus, tableau, J, tableau_J, np.array([sigma_a, sigma_s])
 
 
 

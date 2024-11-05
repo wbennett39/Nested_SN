@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from transport_sn import solve
-from sn_transport_functions import convergence_estimator
+from sn_transport_functions import convergence_estimator, reaction_rate
 import tqdm
 # This notebook will do standard convergence tests comparing cc and Gauss quadrature for a 1d steady problem
 
@@ -10,21 +10,23 @@ def RMSE(l1,l2):
 
 def perform_convergence(method = 'difference'):
     N_cells = 100
+    N_ang_bench = 512
     # method = 'difference'
-    N_ang_list = np.array([2,6,16,46, 136])
+    N_ang_list = np.array([2,6,16,46, 136, 136*3-2])
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
     phi_cc_true = np.zeros((N_ang_list.size, N_cells))
     
-    psib, phib, cell_centersb, musb, tableaub, Jb = solve(N_cells = N_cells, N_ang = 256, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
 
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
-        psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+        psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = 'constant', wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
         
-        psig, phig, cell_centersg, musg, tableaug, Jg = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
+        
         phi_cc_true[iang,:] = phicc
         gauss_err[0,iang] = RMSE(phig, phib)
         cc_err[0, iang] = RMSE(phicc, phib)
@@ -36,10 +38,12 @@ def perform_convergence(method = 'difference'):
 
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
     err_estimate = np.zeros(N_ang_list.size)
+    J_err_estimate = np.zeros(N_ang_list.size)
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
+        J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
-            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method)
+            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method, target = N_ang_bench)
             # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
             phi_err_estimate[ang, ix] = target_estimate[ix]
             # print(target_estimate[ix], phib[ix])
@@ -58,6 +62,7 @@ def perform_convergence(method = 'difference'):
     plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, cc_err[2], 'g-^', mfc = 'none',  label = 'right')
     plt.loglog(N_ang_list, gauss_err[2], 'y-o', mfc = 'none', label = 'right')
+    plt.loglog(N_ang_list, J_err_estimate, '--')
     # plt.legend()
     plt.savefig('J_converge.pdf')
     plt.show()
