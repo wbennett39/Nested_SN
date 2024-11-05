@@ -122,9 +122,11 @@ class scalar_flux_class:
         # self.make_phi(psi, self.w_mat[-1])
         # phi = np.sum(psi[:]*self.w_mat[-1])*0.5
         phi = np.sum(psi[:]*self.ws)*0.5
+        J = np.sum(psi[:]*self.ws*self.mus)*0.5
 
 
         phi_list[-1] = phi
+        Jp_list[-1] = J
         psi_old = psi 
         for ix in range(2, self.ns_list.size+1):
             # print(ix)
@@ -315,8 +317,7 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
         
     
     elif method == 'difference':
-        err_estimate = np.abs(ydata[-1] - ydata[-2])
-    
+        err_estimate = np.abs(ydata[-1] - ydata[-2]) / (xdata[-1]-xdata[-2])
     return err_estimate
     
         # return a

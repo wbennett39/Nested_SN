@@ -14,6 +14,7 @@ def perform_convergence(method = 'difference'):
     N_ang_bench = 512
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136, 406])
+    J_list = np.zeros(N_ang_list.size)
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
     phi_cc_true = np.zeros((N_ang_list.size, N_cells))
@@ -29,6 +30,7 @@ def perform_convergence(method = 'difference'):
             opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
         
         phi_cc_true[iang,:] = phicc
+        J_list[iang] = Jcc[1]
         gauss_err[0,iang] = RMSE(phig, phib)
         cc_err[0, iang] = RMSE(phicc, phib)
         gauss_err[1,iang] = RMSE(Jg[0], Jb[0])
@@ -44,27 +46,32 @@ def perform_convergence(method = 'difference'):
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
         J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = method, target=N_ang_bench)
+        # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
             target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method, target = N_ang_bench)
             # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
             phi_err_estimate[ang, ix] = target_estimate[ix]
             # print(target_estimate[ix], phib[ix])
         err_estimate[ang] = RMSE(target_estimate, target_estimate*0)
-
+    print(tableauJcc[-1][1:, 1][0:], 'J tab')
+    print(cc_err[2], 'cc err J')
     plt.figure('Scalar flux')
-    plt.loglog(N_ang_list, cc_err[0], '-^', mfc = 'none')
-    plt.loglog(N_ang_list, gauss_err[0], '-o', mfc = 'none')
-    plt.loglog(N_ang_list[2:], err_estimate[2:], '-s', mfc = 'none')
+    plt.loglog(N_ang_list, cc_err[0], 'b-^', mfc = 'none')
+    plt.loglog(N_ang_list, gauss_err[0], 'r-o', mfc = 'none')
+    # plt.loglog(N_ang_list[2:], err_estimate[2:], '-s', mfc = 'none')
     print(err_estimate)
-    plt.savefig(f'flux_converge_method={method}.pdf')
+    plt.xlabel(r'$S_N$ order', fontsize = 16)
+    plt.ylabel('RMSE')
+    show_loglog(f'flux_converge_method={method}', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    # plt.savefig(f'flux_converge_method={method}.pdf')
     plt.show()
 
     plt.figure('J')
     # plt.loglog(N_ang_list, cc_err[1], 'r--^', mfc = 'none',  label = 'left')
     # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
-    plt.loglog(N_ang_list, cc_err[2], 'g-^', mfc = 'none',  label = 'right')
-    plt.loglog(N_ang_list, gauss_err[2], 'y-o', mfc = 'none', label = 'right')
-    plt.loglog(N_ang_list[2:], J_err_estimate[2:], '--')
+    plt.loglog(N_ang_list, cc_err[2], 'b-^', mfc = 'none',  label = 'right')
+    plt.loglog(N_ang_list, gauss_err[2], 'r-o', mfc = 'none', label = 'right')
+    plt.loglog(N_ang_list[2:], J_err_estimate[2:], 'k--')
     # plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
