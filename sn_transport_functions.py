@@ -309,15 +309,23 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
 
 def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regression'):
     if method == 'linear_regression':
-        lastpoint = ydata[-1]
-        ynew = np.log(np.abs(ydata))
-        a, b = np.polyfit(xdata, ynew,1)
-        err_estimate = np.abs((np.exp(b) * np.exp(target * a)) - ydata[-1])
+        # lastpoint = ydata[-1]
+        # ynew = np.log(np.abs(ydata[1:]-ydata[:-1]))
+        # xnew = np.log(np.abs(xdata[1:]-xdata[:-1]))
+        # a, b = np.polyfit(xnew, ynew,1)
+        # err_estimate = (np.exp(b) * np.abs(target-xdata[:-1])**a)[-1]
         # print(err_estimate, 'err estimate')
+        ynew = np.log(np.abs(ydata[-1]-ydata[:-1]))
+        xnew = np.log(xdata[:-1])
+        a, b = np.polyfit(xnew, ynew,1)
+        c1 = np.exp(b)
+        err_estimate = c1 * target ** a
+
         
-    
     elif method == 'difference':
-        err_estimate = np.abs(ydata[-1] - ydata[-2]) / (xdata[-1]-xdata[-2])
+        # err_estimate = np.abs(ydata[-1] - ydata[-2]) /(xdata[-1]-xdata[-2])
+        alpha = np.abs(ydata[-1] - ydata[-2]) *xdata[-2]
+        err_estimate = alpha/target
     return err_estimate
     
         # return a

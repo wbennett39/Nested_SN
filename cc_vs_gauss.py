@@ -9,7 +9,7 @@ from show_loglog import show_loglog
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 
-def perform_convergence(method = 'difference'):
+def perform_convergence(method = 'linear_regression'):
     N_cells = 100
     N_ang_bench = 512
     # method = 'difference'
@@ -45,10 +45,10 @@ def perform_convergence(method = 'difference'):
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[1], -0.5, 0.5)
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
-        J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = method, target=N_ang_bench)
+        J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = method, target=N_ang_list[ang])
         # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
-            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method, target = N_ang_bench)
+            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method, target = N_ang_list[ang])
             # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
             phi_err_estimate[ang, ix] = target_estimate[ix]
             # print(target_estimate[ix], phib[ix])
