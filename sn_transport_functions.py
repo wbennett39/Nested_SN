@@ -324,8 +324,11 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
         
     elif method == 'difference':
         # err_estimate = np.abs(ydata[-1] - ydata[-2]) /(xdata[-1]-xdata[-2])
-        alpha = np.abs(ydata[-1] - ydata[-2]) *xdata[-2]
-        err_estimate = alpha/target
+        
+        # alpha = np.abs(ydata[-1] - ydata[-2]) *xdata[-2]
+        # err_estimate = alpha/target
+
+        err_estimate = np.abs(ydata[-1] - ydata[-2]) * np.abs(xdata[-2]-xdata[-1])/target/xdata[-2]/xdata[-1]
     return err_estimate
     
         # return a
