@@ -8,11 +8,14 @@ import tqdm
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 
-def perform_convergence():
+def perform_convergence(method = 'difference'):
+    N_cells = 100
+    # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136])
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
-    N_cells = 100
+    phi_cc_true = np.zeros((N_ang_list.size, N_cells))
+    
     psib, phib, cell_centersb, musb, tableaub, Jb = solve(N_cells = N_cells, N_ang = 256, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
 
@@ -22,7 +25,7 @@ def perform_convergence():
         
         psig, phig, cell_centersg, musg, tableaug, Jg = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
-        
+        phi_cc_true[iang,:] = phicc
         gauss_err[0,iang] = RMSE(phig, phib)
         cc_err[0, iang] = RMSE(phicc, phib)
         gauss_err[1,iang] = RMSE(Jg[0], Jb[0])
@@ -33,17 +36,21 @@ def perform_convergence():
 
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
     err_estimate = np.zeros(N_ang_list.size)
-    for ix in range(N_cells):
-        phi_err_estimate[:, ix] = estimate_error(N_ang_list, tableaucc[ix])
-    for ang in range(N_ang_list.size):
-        err_estimate[ang] = RMSE(phi_err_estimate[ang,:], phi_err_estimate[ang,:]*0)
+    for ang in range(2,N_ang_list.size):
+        target_estimate = np.zeros(N_cells)
+        for ix in range(N_cells):
+            # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference')
+            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
+            phi_err_estimate[ang, ix] = target_estimate[ix]
+            # print(target_estimate[ix], phib[ix])
+        err_estimate[ang] = RMSE(target_estimate, target_estimate*0)
 
     plt.figure('Scalar flux')
     plt.loglog(N_ang_list, cc_err[0], '-^', mfc = 'none')
     plt.loglog(N_ang_list, gauss_err[0], '-o', mfc = 'none')
     plt.loglog(N_ang_list, err_estimate, '-s', mfc = 'none')
     print(err_estimate)
-    plt.savefig('flux_converge.pdf')
+    plt.savefig(f'flux_converge_method={method}.pdf')
     plt.show()
 
     plt.figure('J')

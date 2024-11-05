@@ -294,13 +294,18 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
                 
 
 
-def convergence_estimator(xdata, ydata, method = 'linear_regression'):
+def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regression'):
     if method == 'linear_regression':
         lastpoint = ydata[-1]
-        ynew = np.log(np.abs(ydata[:-1]-lastpoint))
-        a, b = np.polyfit(xdata[:-1], ynew,1)
-        err_estimate = (np.exp(b) * np.exp(ydata[-1] * a))
+        ynew = np.log(np.abs(ydata))
+        a, b = np.polyfit(xdata, ynew,1)
+        err_estimate = np.abs((np.exp(b) * np.exp(target * a)) - ydata[-1])
         # print(err_estimate, 'err estimate')
-        print(a, 'a')
-        return err_estimate
+        
+    
+    elif method == 'difference':
+        err_estimate = np.abs(ydata[-1] - ydata[-2])
+    
+    return err_estimate
+    
         # return a
