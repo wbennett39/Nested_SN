@@ -39,8 +39,8 @@ def perform_convergence(method = 'difference'):
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
         for ix in range(N_cells):
-            # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference')
-            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
+            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = method)
+            # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
             phi_err_estimate[ang, ix] = target_estimate[ix]
             # print(target_estimate[ix], phib[ix])
         err_estimate[ang] = RMSE(target_estimate, target_estimate*0)
