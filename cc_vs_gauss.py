@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from transport_sn import solve
 from sn_transport_functions import convergence_estimator, reaction_rate
 import tqdm
+from show_loglog import show_loglog
 # This notebook will do standard convergence tests comparing cc and Gauss quadrature for a 1d steady problem
 
 def RMSE(l1,l2):
@@ -12,7 +13,7 @@ def perform_convergence(method = 'difference'):
     N_cells = 100
     N_ang_bench = 512
     # method = 'difference'
-    N_ang_list = np.array([2,6,16,46, 136, 136*3-2])
+    N_ang_list = np.array([2,6,16,46, 136, 406])
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
     phi_cc_true = np.zeros((N_ang_list.size, N_cells))
@@ -39,6 +40,7 @@ def perform_convergence(method = 'difference'):
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
     err_estimate = np.zeros(N_ang_list.size)
     J_err_estimate = np.zeros(N_ang_list.size)
+    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[1], -0.5, 0.5)
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
         J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = method, target=N_ang_bench)
@@ -52,19 +54,22 @@ def perform_convergence(method = 'difference'):
     plt.figure('Scalar flux')
     plt.loglog(N_ang_list, cc_err[0], '-^', mfc = 'none')
     plt.loglog(N_ang_list, gauss_err[0], '-o', mfc = 'none')
-    plt.loglog(N_ang_list, err_estimate, '-s', mfc = 'none')
+    plt.loglog(N_ang_list[2:], err_estimate[2:], '-s', mfc = 'none')
     print(err_estimate)
     plt.savefig(f'flux_converge_method={method}.pdf')
     plt.show()
 
     plt.figure('J')
-    plt.loglog(N_ang_list, cc_err[1], 'r--^', mfc = 'none',  label = 'left')
-    plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
+    # plt.loglog(N_ang_list, cc_err[1], 'r--^', mfc = 'none',  label = 'left')
+    # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, cc_err[2], 'g-^', mfc = 'none',  label = 'right')
     plt.loglog(N_ang_list, gauss_err[2], 'y-o', mfc = 'none', label = 'right')
-    plt.loglog(N_ang_list, J_err_estimate, '--')
+    plt.loglog(N_ang_list[2:], J_err_estimate[2:], '--')
     # plt.legend()
-    plt.savefig('J_converge.pdf')
+    plt.xlabel(r'$S_N$ order', fontsize = 16)
+    plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
+    show_loglog(f'J_converge_method={method}', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    # plt.savefig(f'J_converge_method={method}.pdf')
     plt.show()
 
 

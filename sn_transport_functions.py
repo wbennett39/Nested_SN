@@ -38,7 +38,7 @@ class scalar_flux_class:
         # store all Clenshaw-Curtis weights if WE acceleration is activated
        
         
-
+        self.quad_type = quad_type
         self.weights_matrix()
         self.phi = np.zeros(self.mesh.size-1)
         if quad_type == 'cc':
@@ -54,8 +54,11 @@ class scalar_flux_class:
     def weights_matrix(self):
         
         for i in range(self.ns_list.size):
-            self.w_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[1]
-            self.xs_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[0]
+            if self.quad_type == 'cc':
+                self.w_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[1]
+                self.xs_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[0]
+            elif self.quad_type == 'gauss':
+                self.xs_mat[i, 0:self.ns_list[i]], self.w_mat[i, 0:self.ns_list[i]] = quadrature(self.ns_list[i], 'gauss_lobatto')
             igrab = False
             ig = 0
         # print(self.w_mat[0])
