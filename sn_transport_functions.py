@@ -184,6 +184,15 @@ class sigma_class:
     def make_sigma_a(self):
         if self.opacity_function == 'constant':
             self.sigma_a = np.ones(self.mesh.size-1) * self.sigma_a_bar
+        elif self.opacity_function == '3_material':
+            self.sigma_a = np.zeros(self.mesh.size-1)
+            for it in range(self.mesh.size):
+                if self.mesh[it] < -0.5:
+                    self.sigma_a[it] = 0.1
+                elif -0.5 <= self.mesh[it] <=0.5:
+                    self.sigma_a[it] = 0.8
+                elif self.mesh[it] > 0.5:
+                    self.sigma_a[it] = 0.2
         else:
             assert 0 
 
@@ -191,8 +200,20 @@ class sigma_class:
         if self.opacity_function == 'constant':
             self.sigma_s = np.ones(self.mesh.size-1) * self.sigma_s_bar
             self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
+        elif self.opacity_function == '3_material':
+            self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
+            for it in range(self.mesh.size):
+                if self.mesh[it] < -0.5:
+                    self.sigma_s[it] = 0.8
+                elif -0.5 <= self.mesh[it] <=0.5:
+                    self.sigma_s[it] = 0.2
+                elif self.mesh[it] > 0.5:
+                    self.sigma_s[it] = 0.8
+
+
         else: 
             assert 0 
+
 
 
 class mesh_class:
@@ -204,11 +225,20 @@ class mesh_class:
     def make_mesh(self):
         if self.opacity_function == 'constant':
             self.mesh = np.linspace(-self.L/2, self.L/2, self.N_cells+1)
+        elif self.opacity_function == '3_material':
+            third = int(int(self.N_cells + 1)/3)
+            rest = int(self.N_cells+1-2*third)
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third), np.linspace(-0.5, 0.5, rest+2)[1:-1]), (np.linspace(0.5, self.L/2, third)))
+            assert self.mesh.size == self.N_cells +1
+            assert (self.mesh == -0.5).any()
+            assert (self.mesh == 0.5).any()
+
         else:
             assert 0 
 
 
 class source_class:
+
     def __init__(self, source_type, mesh, input_source, source_strength = 1.0):
         self.source_type = source_type
         self.mesh = mesh
@@ -323,12 +353,13 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
 
         
     elif method == 'difference':
-        # err_estimate = np.abs(ydata[-1] - ydata[-2]) /(xdata[-1]-xdata[-2])
+        # err_estimate = np.abs(ydata[-1] - ydata[-2]) /(xdata[-1]-xdata[-2]) 
         
         # alpha = np.abs(ydata[-1] - ydata[-2]) *xdata[-2]
         # err_estimate = alpha/target
 
-        err_estimate = np.abs(ydata[-1] - ydata[-2]) * np.abs(xdata[-2]-xdata[-1])/target/xdata[-2]/xdata[-1]
+        # err_estimate = np.abs(ydata[-1] - ydata[-2]) / np.abs(xdata[-2]-xdata[-1])/target*xdata[-2]*xdata[-1]
+        err_estimate = np.abs(ydata[-1]-ydata[-2])
     return err_estimate
     
         # return a
@@ -350,4 +381,5 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     index1 = np.argmin(np.abs(xs-x1))
     index2 = np.argmin(np.abs(xs-x2))
     result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
+    return result
 

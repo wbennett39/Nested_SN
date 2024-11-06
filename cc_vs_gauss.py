@@ -11,9 +11,9 @@ def RMSE(l1,l2):
 
 def perform_convergence(method = 'linear_regression'):
     N_cells = 100
-    N_ang_bench = 512
+    N_ang_bench = 256
     # method = 'difference'
-    N_ang_list = np.array([2,6,16,46, 136, 406])
+    N_ang_list = np.array([2,6,16,46, 136])
     J_list = np.zeros(N_ang_list.size)
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
