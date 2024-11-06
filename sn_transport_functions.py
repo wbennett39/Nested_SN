@@ -186,7 +186,7 @@ class sigma_class:
             self.sigma_a = np.ones(self.mesh.size-1) * self.sigma_a_bar
         elif self.opacity_function == '3_material':
             self.sigma_a = np.zeros(self.mesh.size-1)
-            for it in range(self.mesh.size):
+            for it in range(self.mesh.size-1):
                 if self.mesh[it] < -0.5:
                     self.sigma_a[it] = 0.1
                 elif -0.5 <= self.mesh[it] <=0.5:
@@ -202,7 +202,8 @@ class sigma_class:
             self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
         elif self.opacity_function == '3_material':
             self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
-            for it in range(self.mesh.size):
+            self.sigma_s = np.zeros(self.mesh.size-1) 
+            for it in range(self.mesh.size-1):
                 if self.mesh[it] < -0.5:
                     self.sigma_s[it] = 0.8
                 elif -0.5 <= self.mesh[it] <=0.5:
@@ -228,7 +229,7 @@ class mesh_class:
         elif self.opacity_function == '3_material':
             third = int(int(self.N_cells + 1)/3)
             rest = int(self.N_cells+1-2*third)
-            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third), np.linspace(-0.5, 0.5, rest+2)[1:-1]), (np.linspace(0.5, self.L/2, third)))
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third), np.linspace(-0.5, 0.5, rest+2)[1:-1], np.linspace(0.5, self.L/2, third)))
             assert self.mesh.size == self.N_cells +1
             assert (self.mesh == -0.5).any()
             assert (self.mesh == 0.5).any()

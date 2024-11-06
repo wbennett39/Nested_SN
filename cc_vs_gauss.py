@@ -18,16 +18,16 @@ def perform_convergence(method = 'linear_regression'):
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
     phi_cc_true = np.zeros((N_ang_list.size, N_cells))
-    
+    opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
 
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = 'constant', wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
+            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
         
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
         
         phi_cc_true[iang,:] = phicc
         J_list[iang] = Jcc[1]
@@ -80,9 +80,11 @@ def perform_convergence(method = 'linear_regression'):
     plt.show()
 
 
-    plt.figure('error vs x')
-    plt.plot(cell_centersb, phi_err_estimate[-1,:])
-    plt.plot(cell_centersb, np.abs(phicc - phib), '--')
+
+
+    plt.figure('phi')
+    plt.plot(cell_centersb, phib)
+    # plt.plot(cell_centersb, np.abs(phicc - phib), '--')
 
     plt.show()
 
