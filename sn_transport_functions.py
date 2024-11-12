@@ -190,9 +190,9 @@ class sigma_class:
                 if self.mesh[it] < -0.5:
                     self.sigma_a[it] = 0.1
                 elif -0.5 <= self.mesh[it] <=0.5:
-                    self.sigma_a[it] = 0.8
+                    self.sigma_a[it] = 0.4
                 elif self.mesh[it] > 0.5:
-                    self.sigma_a[it] = 0.2
+                    self.sigma_a[it] = 0.1
         else:
             assert 0 
 
@@ -205,11 +205,11 @@ class sigma_class:
             self.sigma_s = np.zeros(self.mesh.size-1) 
             for it in range(self.mesh.size-1):
                 if self.mesh[it] < -0.5:
-                    self.sigma_s[it] = 0.8
+                    self.sigma_s[it] = 0.9
                 elif -0.5 <= self.mesh[it] <=0.5:
-                    self.sigma_s[it] = 0.2
+                    self.sigma_s[it] = 0.6
                 elif self.mesh[it] > 0.5:
-                    self.sigma_s[it] = 0.8
+                    self.sigma_s[it] = 0.9
 
 
         else: 
