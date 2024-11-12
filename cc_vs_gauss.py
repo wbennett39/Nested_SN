@@ -13,7 +13,7 @@ def RMSE(l1,l2):
 
 def perform_convergence():
     N_cells = 350
-    N_ang_bench = 1024
+    N_ang_bench = 512
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136,406 ])
     J_list = np.zeros(N_ang_list.size)
@@ -85,6 +85,7 @@ def perform_convergence():
     plt.loglog(N_ang_list, gauss_err[2], 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
     plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
     plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], np.abs(tableauJcc[-1][3:,3] - Jb[1]) , '-x', labe = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
