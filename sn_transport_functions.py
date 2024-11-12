@@ -32,11 +32,13 @@ class scalar_flux_class:
         self.xs_mat = np.zeros((self.ns_list.size, self.ns_list[-1] ))
         self.index_mat = np.zeros((self.ns_list.size, self.N_ang ))
         self.nested_phi = np.zeros((self.ns_list.size, self.N_cells))
+        self.nested_J = np.zeros((self.ns_list.size, self.N_cells))
         self.tableau = np.zeros((self.N_cells, self.ns_list.size+1,self.ns_list.size+1))
+        self.tableauJp = np.zeros((self.N_cells, self.ns_list.size+1,self.ns_list.size+1))
         # store all Clenshaw-Curtis weights if WE acceleration is activated
        
         
-
+        self.quad_type = quad_type
         self.weights_matrix()
         self.phi = np.zeros(self.mesh.size-1)
         if quad_type == 'cc':
@@ -52,8 +54,11 @@ class scalar_flux_class:
     def weights_matrix(self):
         
         for i in range(self.ns_list.size):
-            self.w_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[1]
-            self.xs_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[0]
+            if self.quad_type == 'cc':
+                self.w_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[1]
+                self.xs_mat[i, 0:self.ns_list[i]] = cc_quad(self.ns_list[i])[0]
+            elif self.quad_type == 'gauss':
+                self.xs_mat[i, 0:self.ns_list[i]], self.w_mat[i, 0:self.ns_list[i]] = quadrature(self.ns_list[i], 'gauss_lobatto')
             igrab = False
             ig = 0
         # print(self.w_mat[0])
@@ -79,6 +84,7 @@ class scalar_flux_class:
         # psi_new.append(psi[-1])
         # print(xs_test, 'xs')
         return np.array(psi_new)
+    
         
     
     def make_phi(self, psi, ws):
@@ -91,14 +97,16 @@ class scalar_flux_class:
                 if self.wynn_epsilon == True:
                     # for n in range(self.ns_list.size):
                         # print(n, 'n')
-                    self.nested_phi[:, k] = self.make_nested_phi(psi[:,k])
+                    self.nested_phi[:, k], self.nested_J[:,k] = self.make_nested_phi(psi[:,k])
                     tableau = self.wynn_epsilon_algorithm(self.nested_phi[:,k])
+                    tableau_J = self.wynn_epsilon_algorithm(self.nested_J[:,k])
                     
                     # self.phi[k] = tableau[3:,3]
                     # print(tableau[3:,3][0], 'we phi')
                     # print(self.phi[k], 'phi')
                     
                     self.tableau[k, :] = tableau
+                    self.tableauJp[k,:] = tableau_J
                     # print(self.tableau[k,1:,1][-1]-self.phi[k])
    
                     # self.phi[k] = tableau[3:,3][-1] 
@@ -110,12 +118,15 @@ class scalar_flux_class:
 
     def make_nested_phi(self, psi):
         phi_list = np.zeros(self.ns_list.size)
+        Jp_list = np.zeros(self.ns_list.size)
         # self.make_phi(psi, self.w_mat[-1])
         # phi = np.sum(psi[:]*self.w_mat[-1])*0.5
         phi = np.sum(psi[:]*self.ws)*0.5
+        J = np.sum(psi[:]*self.ws*self.mus)*0.5
 
 
         phi_list[-1] = phi
+        Jp_list[-1] = J
         psi_old = psi 
         for ix in range(2, self.ns_list.size+1):
             # print(ix)
@@ -125,6 +136,8 @@ class scalar_flux_class:
             # print(self.w_mat[-ix-1, 0:self.ns_list[-ix-1]])
             # phi_list[-ix] = self.make_phi(psi_lower, self.w_mat[-ix, 0:self.ns_list[ix]])
             phi_list[-ix] = np.sum(psi_lower[:]*self.w_mat[-ix, 0:self.ns_list[-ix]])*0.5
+            Jp_list[-ix] = np.sum(psi_lower[:]*self.w_mat[-ix, 0:self.ns_list[-ix]] * self.xs_mat[-ix, 0:self.ns_list[-ix]])*0.5
+
             # print(self.ns_list[-ix-1])
             # print(self.w_mat[-ix-1, 0:self.ns_list[-ix-1]], 'ws')
         
@@ -134,7 +147,7 @@ class scalar_flux_class:
 
         # print(phi_list[-1]-phi)
         # print(len(phi_list))
-        return np.array(phi_list)
+        return np.array(phi_list), np.array(Jp_list)
 
     def  wynn_epsilon_algorithm(self, S):
         n = S.size
@@ -171,6 +184,15 @@ class sigma_class:
     def make_sigma_a(self):
         if self.opacity_function == 'constant':
             self.sigma_a = np.ones(self.mesh.size-1) * self.sigma_a_bar
+        elif self.opacity_function == '3_material':
+            self.sigma_a = np.zeros(self.mesh.size-1)
+            for it in range(self.mesh.size-1):
+                if self.mesh[it] < -0.5:
+                    self.sigma_a[it] = 0.1
+                elif -0.5 <= self.mesh[it] <=0.5:
+                    self.sigma_a[it] = 0.8
+                elif self.mesh[it] > 0.5:
+                    self.sigma_a[it] = 0.2
         else:
             assert 0 
 
@@ -178,8 +200,21 @@ class sigma_class:
         if self.opacity_function == 'constant':
             self.sigma_s = np.ones(self.mesh.size-1) * self.sigma_s_bar
             self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
+        elif self.opacity_function == '3_material':
+            self.sigma_t = self.sigma_t_bar*  np.ones(self.mesh.size-1) 
+            self.sigma_s = np.zeros(self.mesh.size-1) 
+            for it in range(self.mesh.size-1):
+                if self.mesh[it] < -0.5:
+                    self.sigma_s[it] = 0.8
+                elif -0.5 <= self.mesh[it] <=0.5:
+                    self.sigma_s[it] = 0.2
+                elif self.mesh[it] > 0.5:
+                    self.sigma_s[it] = 0.8
+
+
         else: 
             assert 0 
+
 
 
 class mesh_class:
@@ -191,11 +226,20 @@ class mesh_class:
     def make_mesh(self):
         if self.opacity_function == 'constant':
             self.mesh = np.linspace(-self.L/2, self.L/2, self.N_cells+1)
+        elif self.opacity_function == '3_material':
+            third = int(int(self.N_cells + 1)/3)
+            rest = int(self.N_cells+1-2*third)
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third), np.linspace(-0.5, 0.5, rest+2)[1:-1], np.linspace(0.5, self.L/2, third)))
+            assert self.mesh.size == self.N_cells +1
+            assert (self.mesh == -0.5).any()
+            assert (self.mesh == 0.5).any()
+
         else:
             assert 0 
 
 
 class source_class:
+
     def __init__(self, source_type, mesh, input_source, source_strength = 1.0):
         self.source_type = source_type
         self.mesh = mesh
@@ -296,16 +340,47 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
 
 def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regression'):
     if method == 'linear_regression':
-        lastpoint = ydata[-1]
-        ynew = np.log(np.abs(ydata))
-        a, b = np.polyfit(xdata, ynew,1)
-        err_estimate = np.abs((np.exp(b) * np.exp(target * a)) - ydata[-1])
+        # lastpoint = ydata[-1]
+        # ynew = np.log(np.abs(ydata[1:]-ydata[:-1]))
+        # xnew = np.log(np.abs(xdata[1:]-xdata[:-1]))
+        # a, b = np.polyfit(xnew, ynew,1)
+        # err_estimate = (np.exp(b) * np.abs(target-xdata[:-1])**a)[-1]
         # print(err_estimate, 'err estimate')
+        ynew = np.log(np.abs(ydata[-1]-ydata[:-1]))
+        xnew = np.log(xdata[:-1])
+        a, b = np.polyfit(xnew, ynew,1)
+        c1 = np.exp(b)
+        err_estimate = c1 * target ** a
+
         
-    
     elif method == 'difference':
-        err_estimate = np.abs(ydata[-1] - ydata[-2])
-    
+        # err_estimate = np.abs(ydata[-1] - ydata[-2]) /(xdata[-1]-xdata[-2]) 
+        
+        # alpha = np.abs(ydata[-1] - ydata[-2]) *xdata[-2]
+        # err_estimate = alpha/target
+
+        # err_estimate = np.abs(ydata[-1] - ydata[-2]) / np.abs(xdata[-2]-xdata[-1])/target*xdata[-2]*xdata[-1]
+        err_estimate = np.abs(ydata[-1]-ydata[-2])
     return err_estimate
     
         # return a
+
+def trapezoid_integrator(x_array, y_array, const_dx = True):
+    if const_dx == True:
+        dx = x_array[1]-x_array[0]
+
+        res = 0 
+        res +=  y_array[0]
+        res +=  y_array[-1]
+        for it in range(1, y_array.size -1):
+            res += 2  *y_array[it]
+
+        return 0.5 * dx * res
+    
+def reaction_rate(xs, phi, sigma, x1, x2):
+
+    index1 = np.argmin(np.abs(xs-x1))
+    index2 = np.argmin(np.abs(xs-x2))
+    result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
+    return result
+
