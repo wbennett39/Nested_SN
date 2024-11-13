@@ -49,6 +49,9 @@ class scalar_flux_class:
             print('Gaussian quadrature')
             self.mus, self.ws = quadrature(self.N_ang, 'gauss_lobatto')
         # print(self.mus, self.ws, 'mus, ws')
+        elif quad_type == 'gauss_legendre':
+            print('Gauss-Legendre quadrature')
+            self.mus, self.ws = quadrature(self.N_ang, 'gauss_legendre')
 
         
         # print(self.ws, 'weights')

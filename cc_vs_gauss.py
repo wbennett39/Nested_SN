@@ -13,15 +13,17 @@ def RMSE(l1,l2):
 
 def perform_convergence():
     N_cells = 350
-    N_ang_bench = 2048
+    N_ang_bench = 512
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136,406 ])
     J_list = np.zeros(N_ang_list.size)
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
+    gaussl_err = np.zeros((3, N_ang_list.size))
     phi_cc_true = np.zeros((N_ang_list.size, N_cells))
     reaction_rate_cc = np.zeros(N_ang_list.size)
     reaction_rate_gauss = np.zeros(N_ang_list.size)
+    reaction_rate_gauss_l = np.zeros(N_ang_list.size)
     opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
@@ -34,15 +36,22 @@ def perform_convergence():
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
         
+        psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+        
         phi_cc_true[iang,:] = phicc
         reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], -0.5, 0.5)
         reaction_rate_gauss[iang] = reaction_rate(cell_centersg, phig, sigmas[0], -0.5, 0.5)
+        reaction_rate_gauss_l[iang] = reaction_rate(cell_centersgl, phigl, sigmas[0], -0.5, 0.5)
         print(reaction_rate_cc, 'cc reaction rate')
         J_list[iang] = Jcc[1]
         gauss_err[0,iang] = RMSE(phig, phib)
+        gaussl_err[0,iang] = RMSE(phigl, phib)
         cc_err[0, iang] = RMSE(phicc, phib)
         gauss_err[1,iang] = RMSE(Jg[0], Jb[0])
         gauss_err[2,iang] = RMSE(Jg[1], Jb[1])
+        gaussl_err[1,iang] = RMSE(Jgl[0], Jb[0])
+        gaussl_err[2,iang] = RMSE(Jgl[1], Jb[1])
         cc_err[0, iang] = RMSE(phicc, phib)
         cc_err[1, iang] = RMSE(Jb[0], Jcc[0])
         cc_err[2, iang] = RMSE(Jb[1], Jcc[1])
@@ -68,6 +77,7 @@ def perform_convergence():
     plt.figure('Scalar flux')
     plt.loglog(N_ang_list, cc_err[0], 'b-^', mfc = 'none', label = 'Clenshaw-Curtis')
     plt.loglog(N_ang_list, gauss_err[0], 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
+    plt.loglog(N_ang_list, gaussl_err[0], 'r-o', mfc = 'none', label = 'Gauss-Legendre')
     # plt.loglog(N_ang_list[2:], err_estimate[2:], '-s', mfc = 'none')
     print(err_estimate)
     plt.xlabel(r'$S_N$ order', fontsize = 16)
@@ -83,9 +93,11 @@ def perform_convergence():
     # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, cc_err[2], 'b-^', mfc = 'none',  label = 'Clenshaw-Curtis')
     plt.loglog(N_ang_list, gauss_err[2], 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
+    plt.loglog(N_ang_list, gaussl_err[2], 'r-o', mfc = 'none', label = 'Gauss-Legendre')
     plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
     plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'regression')
-    plt.loglog(N_ang_list[2:], np.abs(tableauJcc[-1][3:,3] - Jb[1]) , '-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[3:], np.abs(tableauJcc[-1][3:,3][:-1] - Jb[1]) , '-x', label = r'Wynn-$\epsilon$' )
+    # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
@@ -109,6 +121,7 @@ def perform_convergence():
 
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_cc), 'b-^', label = 'Clenshaw-Curtis')
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss), 'r-o', label = 'Gauss-Lobatto')
+    plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss_l), 'r-o', label = 'Gauss-Legendre')
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('reaction rate error', fontsize = 16)
     show_loglog('reaction_rate', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)

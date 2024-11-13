@@ -32,6 +32,9 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         mus, ws = cc_quad(N_ang)
     elif quad_type == 'gauss':
         mus, ws = quadrature(N_ang, 'gauss_lobatto' )
+    elif quad_type == 'gauss_legendre':
+        mus, ws = quadrature(N_ang, 'gauss_legendre' )
+
     # print(mus, 'mus')
     # print(mus, 'mus')
 
