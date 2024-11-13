@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from transport_sn import solve
-from sn_transport_functions import convergence_estimator, reaction_rate, cc_quad
+from sn_transport_functions import convergence_estimator, reaction_rate, cc_quad, wynn_epsilon_algorithm
 from functions import quadrature
 import tqdm
 from show_loglog import show_loglog
@@ -24,6 +24,7 @@ def perform_convergence():
     reaction_rate_cc = np.zeros(N_ang_list.size)
     reaction_rate_gauss = np.zeros(N_ang_list.size)
     reaction_rate_gauss_l = np.zeros(N_ang_list.size)
+    reaction_rate_tableau = np.zeros((N_ang_list.size+1, N_ang_list.size-1))
     opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
@@ -55,16 +56,24 @@ def perform_convergence():
         cc_err[0, iang] = RMSE(phicc, phib)
         cc_err[1, iang] = RMSE(Jb[0], Jcc[0])
         cc_err[2, iang] = RMSE(Jb[1], Jcc[1])
+    reaction_rate_nested = np.zeros(N_ang_list.size)
+    for iang in range(N_ang_list.size):
+        reaction_rate_nested[iang] = reaction_rate(cell_centerscc, tableaucc[:][1:,1][iang], sigmas[0], -0.5, 0.5)
 
+    reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested)
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
     err_estimate = np.zeros(N_ang_list.size)
     J_err_estimate_diff = np.zeros(N_ang_list.size)
     J_err_estimate_lr = np.zeros(N_ang_list.size)
+    reaction_err_estimate_diff = np.zeros(N_ang_list.size)
+    reaction_rate_estimate_lr = np.zeros(N_ang_list.size)
     
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
         J_err_estimate_lr[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'linear_regression', target=N_ang_list[ang])
         J_err_estimate_diff[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'difference', target=N_ang_list[ang])
+        reaction_err_estimate_diff[iang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_tableau[1:, 1][0:ang], method = 'linear_regression', target=N_ang_list[ang])
+        reaction_rate_estimate_lr[iang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_tableau[1:, 1][0:ang], method = 'difference', target=N_ang_list[ang])
         # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
             target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference', target = N_ang_list[ang])
@@ -96,7 +105,7 @@ def perform_convergence():
     plt.loglog(N_ang_list, gaussl_err[2], 'g-s', mfc = 'none', label = 'Gauss-Legendre')
     plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
     plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'regression')
-    plt.loglog(N_ang_list[-1], np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][-1] ) , '-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[2:], np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
@@ -122,6 +131,10 @@ def perform_convergence():
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_cc), 'b-^', mfc = 'none', label = 'Clenshaw-Curtis')
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss), 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss_l), 'g-s', mfc = 'none', label = 'Gauss-Legendre')
+    plt.loglog(N_ang_list[2:], reaction_err_estimate_diff[2:], 'k--', label = 'difference' )
+    plt.loglog(N_ang_list[2:], reaction_rate_estimate_lr[2:], 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
+
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('reaction rate error', fontsize = 16)
     show_loglog('reaction_rate', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
@@ -135,7 +148,7 @@ def estimate_error(ang_list, tableau):
     return err_estimate
 
 
-def nested_plot(mkrs=2):
+def nested_plot(mkrs=8):
     x1 = 2
     x2 = 6
     x3 = 16
@@ -163,7 +176,7 @@ def nested_plot(mkrs=2):
     plt.plot(g4, np.ones(g4.size)*y4, 'k.',markersize = mkrs)
     ax.get_yaxis().set_visible(False)
     # ax.spines['left'].set_visible(False)
-    plt.ylim(-0.01, 0.025)
+    plt.ylim(-0.01 + 0.008, 0.025-0.008)
     show('nested_quad_example_gs')
     plt.figure(2)
     ax = plt.gca()
@@ -173,10 +186,11 @@ def nested_plot(mkrs=2):
     plt.plot(cc4 , np.ones(cc4.size)*y4, 'k.',markersize = mkrs)
     ax.get_yaxis().set_visible(False)
     # ax.spines['left'].set_visible(False)
-    plt.ylim(-0.01, 0.025)
+    plt.ylim(-0.01+0.008, 0.025-0.008)
     # plt.ylim(-0.02, 0.08)
 
     # plt.plot(cc2, np.ones(cc2.size) * 2, 'k-')
     show('nested_quad_example_cc')
     plt.show()
+
 

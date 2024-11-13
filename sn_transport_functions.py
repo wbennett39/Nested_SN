@@ -389,3 +389,17 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
     return result
 
+def  wynn_epsilon_algorithm(S):
+        n = S.size
+        width = n-1
+        # print(width)
+        tableau = np.zeros((n + 1, width + 2))
+        tableau[:,0] = 0
+        tableau[1:,1] = S.copy() 
+        for w in range(2,width + 2):
+            for r in range(w,n+1):
+                #print(r,w)
+                # if abs(tableau[r,w-1] - tableau[r-1,w-1]) <= 1e-15:
+                #     print('potential working precision issue')
+                tableau[r,w] = tableau[r-1,w-2] + 1/(tableau[r,w-1] - tableau[r-1,w-1])
+        return tableau
