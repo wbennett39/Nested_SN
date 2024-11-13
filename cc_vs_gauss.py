@@ -128,10 +128,11 @@ def perform_convergence():
     # plt.loglog(N_ang_list, cc_err[1], 'r--^', mfc = 'none',  label = 'left')
     # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
 
-    plt.loglog(N_ang_list[2:], np.abs(cc_err[2]/J_err_estimate_diff[2:]), 'k--', label = 'difference')
-    plt.loglog(N_ang_list[2:], np.abs(cc_err[2]/J_err_estimate_lr[2:]), 'k-.', label = 'regression')
-    plt.loglog(N_ang_list[2:], np.abs(cc_err[2]/J_err_estimate_rich[2:]), 'k:', label = 'Richardson')
-    plt.loglog(N_ang_list[2:], np.abs(cc_err[2]/np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:])) , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_diff[2:])**-1, 'k--', label = 'difference')
+    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_lr[2:])**-1, 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_rich[2:])**-1, 'k:', label = 'Richardson')
+    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:]))**-1 , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list, np.ones(N_ang_list.size), 'k-')
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
@@ -169,10 +170,11 @@ def perform_convergence():
 
     plt.figure('reaction rate error accuracy')
 
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_bench-reaction_rate_cc)/np.abs(reaction_err_estimate_diff[2:]), 'k--', label = 'difference' )
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_bench-reaction_rate_cc)/np.abs(reaction_rate_estimate_lr[2:]), 'k-.', label = 'regression')
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_bench-reaction_rate_cc)/np.abs(reaction_rate_estimate_rich[2:]), 'k:', label = 'Richardson')
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_bench-reaction_rate_cc)/np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_err_estimate_diff[2:]))**-1, 'k--', label = 'difference' )
+    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_estimate_lr[2:]))**-1, 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_estimate_rich[2:]))**-1, 'k:', label = 'Richardson')
+    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ))**-1 , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list, np.ones(N_ang_list.size), 'k-')
 
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('reaction rate error', fontsize = 16)
