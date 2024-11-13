@@ -366,9 +366,20 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
 
         # err_estimate = np.abs(ydata[-1] - ydata[-2]) / np.abs(xdata[-2]-xdata[-1])/target*xdata[-2]*xdata[-1]
         err_estimate = np.abs(ydata[-1]-ydata[-2])
-    return err_estimate
     
-        # return a
+    
+    elif method == 'richardson':
+        ynew = np.log(np.abs(ydata[-1]-ydata[:-1]))
+        xnew = np.log(xdata[:-1])
+        a, b = np.polyfit(xnew, ynew,1)
+        c1 = np.exp(b)
+        k0 = -a
+        h = 1/ xdata[-2]
+        t = h * xdata[-1]
+        A1 = (t**k0 * ydata[-1] -ydata[-2]) / (t**k0 - 1)
+        err_estimate = np.abs(ydata[-1] - A1)
+
+    return err_estimate    # return a
 
 def trapezoid_integrator(x_array, y_array, const_dx = True):
     if const_dx == True:
