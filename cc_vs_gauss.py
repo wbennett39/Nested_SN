@@ -6,16 +6,38 @@ from functions import quadrature
 import tqdm
 from show_loglog import show_loglog
 from show import show
+from matplotlib import ticker
 # This notebook will do standard convergence tests comparing cc and Gauss quadrature for a 1d steady problem
 
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
+def spatial_converge():
+    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000])
+    reaction_list = np.zeros(N_cells_list.size)
+    N_ang_bench = 512
+    opacity = '3_material'
+    for k, cells, in enumerate(N_cells_list):
+
+        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+        reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
+        print(reaction_rate_bench)
+        print(5/cells, 'dx')
+        reaction_list[k] = reaction_rate_bench
+    
+    plt.loglog(N_cells_list, np.abs(reaction_list))
+    plt.show()
+    print(np.abs(reaction_list[1:] - reaction_list[0:-1]))
+
+
+
+
 
 def perform_convergence():
-    N_cells = 350
-    N_ang_bench = 256
+    N_cells = 1000
+    N_ang_bench = 1024
     # method = 'difference'
-    N_ang_list = np.array([2,6,16,46, 136])
+    N_ang_list = np.array([2,6,16,46, 136, 406])
     J_list = np.zeros(N_ang_list.size)
     cc_err = np.zeros((3, N_ang_list.size))
     gauss_err = np.zeros((3, N_ang_list.size))
@@ -112,7 +134,7 @@ def perform_convergence():
     plt.loglog(N_ang_list, gauss_err[2], 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
     plt.loglog(N_ang_list, gaussl_err[2], 'g-s', mfc = 'none', label = 'Gauss-Legendre')
     plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
-    plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], J_err_estimate_rich[2:], 'k:', label = 'Richardson')
     plt.loglog(N_ang_list[2:], np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
@@ -129,7 +151,7 @@ def perform_convergence():
     # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
 
     plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_diff[2:])**-1, 'k--', label = 'difference')
-    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_lr[2:])**-1, 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_lr[2:])**-1, 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/J_err_estimate_rich[2:])**-1, 'k:', label = 'Richardson')
     plt.loglog(N_ang_list[2:], np.abs(cc_err[2][2:]/np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:]))**-1 , 'k-x', label = r'Wynn-$\epsilon$' )
     plt.loglog(N_ang_list, np.ones(N_ang_list.size), 'k-')
@@ -146,8 +168,8 @@ def perform_convergence():
 
     plt.figure('phi')
     plt.plot(cell_centersb, phib, 'k-')
-    plt.xlabel(r'$x$ [cm]')
-    plt.ylabel(r'$\phi$')
+    plt.xlabel(r'$x$ [cm]', fontsize = 16)
+    plt.ylabel(r'$\phi$', fontsize = 16)
     show('scalar_flux_3mat')
     # plt.plot(cell_centersb, np.abs(phicc - phib), '--')
 
@@ -159,7 +181,7 @@ def perform_convergence():
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss), 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
     plt.loglog(N_ang_list, np.abs(reaction_rate_bench-reaction_rate_gauss_l), 'g-s', mfc = 'none', label = 'Gauss-Legendre')
     plt.loglog(N_ang_list[2:], np.abs(reaction_err_estimate_diff[2:]), 'k--', label = 'difference' )
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_estimate_lr[2:]), 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_estimate_lr[2:]), 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], np.abs(reaction_rate_estimate_rich[2:]), 'k:', label = 'Richardson')
     plt.loglog(N_ang_list[2:], np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
 
@@ -171,7 +193,7 @@ def perform_convergence():
     plt.figure('reaction rate error accuracy')
 
     plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_err_estimate_diff[2:]))**-1, 'k--', label = 'difference' )
-    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_estimate_lr[2:]))**-1, 'k-.', label = 'regression')
+    plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_estimate_lr[2:]))**-1, 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_estimate_rich[2:]))**-1, 'k:', label = 'Richardson')
     plt.loglog(N_ang_list[2:], (np.abs(reaction_rate_bench-reaction_rate_cc)[2:]/np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ))**-1 , 'k-x', label = r'Wynn-$\epsilon$' )
     plt.loglog(N_ang_list, np.ones(N_ang_list.size), 'k-')
@@ -216,7 +238,14 @@ def nested_plot(mkrs=8):
     plt.plot(g2, np.ones(g2.size)*y2, 'k.', markersize = mkrs)
     plt.plot(g3, np.ones(g3.size)*y3, 'k.',markersize = mkrs)
     plt.plot(g4, np.ones(g4.size)*y4, 'k.',markersize = mkrs)
-    ax.get_yaxis().set_visible(False)
+    positions = [y1, y2, y3, y4]
+    labels = ['2', '6', '16', '46']
+    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter(labels))
+    # ax.set_yticks([2,6,16,46])
+    # ax.get_yaxis().set_visible(False)
+    plt.xlabel('x', fontsize = 16)
+    plt.ylabel('N', fontsize = 16)
     # ax.spines['left'].set_visible(False)
     plt.ylim(-0.01 + 0.008, 0.025-0.008)
     show('nested_quad_example_gs')
@@ -226,7 +255,14 @@ def nested_plot(mkrs=8):
     plt.plot(cc2 , np.ones(cc2.size)*y2, 'k.',markersize = mkrs)
     plt.plot(cc3 , np.ones(cc3.size)*y3, 'k.',markersize = mkrs)
     plt.plot(cc4 , np.ones(cc4.size)*y4, 'k.',markersize = mkrs)
-    ax.get_yaxis().set_visible(False)
+    # ax.set_yticks([2,6,16,46])
+    # ax.get_yaxis().set_visible(False)
+    plt.xlabel('x', fontsize = 16)
+    plt.ylabel('N', fontsize = 16)
+    positions = [y1, y2, y3, y4]
+    labels = ['2', '6', '16', '46']
+    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter(labels))
     # ax.spines['left'].set_visible(False)
     plt.ylim(-0.01+0.008, 0.025-0.008)
     # plt.ylim(-0.02, 0.08)

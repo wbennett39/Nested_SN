@@ -3,7 +3,7 @@ import numpy as np
 from chaospy.quadrature import clenshaw_curtis
 import math
 from functions import quadrature
-
+from numba import njit
 def cc_quad(N):
     x, w= clenshaw_curtis(N-1,(-1,1))
     return x[0], w
@@ -304,8 +304,8 @@ class boundary_class:
 
 
 
-
-def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class):
+@njit
+def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
@@ -316,7 +316,8 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
 
             delta = mesh[k+1]-mesh[k]
             if k == 0:
-                psiminus = boundary_class('left', mun)
+                # psiminus = boundary_class('left', mun)
+                psiminus = psiminusleft
 
             psin[k] = (1 + 0.5 * sigma_t[k] * delta/abs(mun))**-1 * (psiminus + 0.5 * delta * q/abs(mun))
             psiminus_new = 2 * psin[k] - psiminus
@@ -332,7 +333,8 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, boundary_class)
             # print(k)
             delta = mesh[k+1]-mesh[k]
             if k == N_cells-1:
-                 psiplus = boundary_class('right', mun)
+                #  psiplus = boundary_class('right', mun)
+                psiplus = psiplusright
             psin[k] = (1 + 0.5 * sigma_t[k] * delta/abs(mun))**-1 * (psiplus + 0.5 * delta * q/abs(mun))
             psiplus_new = 2 * psin[k] - psiplus
             psiplus = psiplus_new
@@ -397,6 +399,9 @@ def reaction_rate(xs, phi, sigma, x1, x2):
 
     index1 = np.argmin(np.abs(xs-x1))
     index2 = np.argmin(np.abs(xs-x2))
+    if xs[index1 + 1] < x2:
+        index1 +=1 
+    # print(xs[index1:index2], 'xs in integral')
     result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
     return result
 

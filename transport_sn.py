@@ -65,9 +65,13 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 # assert 0
             else:
                 snew = s
-
-                 
-            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, boundary_ob)
+            psiplusright = 0
+            psiminusleft = 0 
+            if mu >0:
+                psiminusleft = boundary_ob('left', mu)
+            elif mu <0:
+                psiplusright = boundary_ob('right', mu)
+            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
         
         phi_ob.make_phi(psi, ws)
         phi = phi_ob.phi
@@ -97,8 +101,13 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 # assert 0
             else:
                 snew = s
-            
-            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, boundary_ob)
+            psiplusright = 0
+            psiminusleft = 0 
+            if mu >0:
+                psiminusleft = boundary_ob('left', mu)
+            elif mu <0:
+                psiplusright = boundary_ob('right', mu)
+            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
     cell_centers = np.zeros(N_cells)
     for ix in range(N_cells):
         cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
