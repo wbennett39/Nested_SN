@@ -18,7 +18,7 @@ def cc_quad(N):
 class scalar_flux_class:
     def __init__(self, N_ang, N_cells, mesh, wynn_epsilon, quad_type = 'cc'):
         self.N_ang = N_ang
-        self.N_cells = N_cells
+        self.N_cells = int(N_cells)
         self.mesh = mesh
         self.wynn_epsilon = wynn_epsilon
         ns_list = np.array([2,6,16,46,136, 406, 1216, 3646])
@@ -234,10 +234,25 @@ class mesh_class:
         elif self.opacity_function == '3_material':
             third = int(int(self.N_cells + 1)/3)
             rest = int(self.N_cells+1-2*third)
-            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third), np.linspace(-0.5, 0.5, rest+2)[1:-1], np.linspace(0.5, self.L/2, third)))
+            N = rest-1
+            x1 = (N/(2*(1-N)))
+
+            # print(np.linspace(-0.5-dx, 0.5+dx, rest)[1:]-np.linspace(-0.5-dx, 0.5+dx, rest)[:-1]) 
+            dx = 0.125
+            # self.mesh = np.concatenate((np.linspace(-self.L/2, x1, third + 1)[:-1], np.linspace(x1, -x1, rest), np.linspace(x1, self.L/2, third+1)[1:]))
+            # print(self.mesh)
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -0.5, third + 1)[:-1], np.linspace(-0.5, 0.5, rest), np.linspace(0.5, self.L/2, third+1)[1:]))
             assert self.mesh.size == self.N_cells +1
-            assert (self.mesh == -0.5).any()
-            assert (self.mesh == 0.5).any()
+            # assert (self.mesh == -0.5).any()
+            # assert (self.mesh == 0.5).any()
+            cell_centers = np.copy(self.mesh*0)
+            # print(cell_centers)
+            for ix in range(cell_centers.size-1):
+                cell_centers[ix] = (self.mesh[ix+1] + self.mesh[ix])/2
+
+            # assert (cell_centers == -0.5).any()
+            # assert (cell_centers == 0.5).any()
+
 
         else:
             assert 0 
@@ -262,11 +277,11 @@ class IC_class:
         self.IC = IC
         self.mesh = mesh
         self.N_ang = N_ang
-        self.N_cells = N_cells
+        self.N_cells = int(N_cells)
     
     def make_IC(self):
         if self.IC == 'cold':
-            self.angular_flux = np.zeros((self.N_ang, self.N_cells))
+            self.angular_flux = np.zeros((int(self.N_ang), int(self.N_cells)))
         if self.IC == 'pl':
             self.angular_flux = np.zeros((self.N_ang, self.N_cells))
             middle = int(self.N_cells/2)
@@ -382,7 +397,7 @@ def convergence_estimator(xdata, ydata, target = 256, method = 'linear_regressio
         err_estimate = np.abs(ydata[-1] - A1)
 
     return err_estimate    # return a
-
+# @njit
 def trapezoid_integrator(x_array, y_array, const_dx = True):
     if const_dx == True:
         dx = x_array[1]-x_array[0]
@@ -404,7 +419,7 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     # print(xs[index1:index2], 'xs in integral')
     result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
     return result
-
+# @njit
 def  wynn_epsilon_algorithm(S):
         n = S.size
         width = n-1

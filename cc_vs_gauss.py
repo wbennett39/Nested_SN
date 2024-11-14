@@ -12,14 +12,14 @@ from matplotlib import ticker
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge():
-    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000])
+    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000,100000 ])
     reaction_list = np.zeros(N_cells_list.size)
     N_ang_bench = 512
     opacity = '3_material'
     for k, cells, in enumerate(N_cells_list):
 
         psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
         reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
         print(reaction_rate_bench)
         print(5/cells, 'dx')
@@ -27,14 +27,14 @@ def spatial_converge():
     
     plt.loglog(N_cells_list, np.abs(reaction_list))
     plt.show()
-    print(np.abs(reaction_list[1:] - reaction_list[0:-1]))
+    print(np.abs(reaction_list[-2] - reaction_list[-1]), 'tolerance')
 
 
 
 
 
 def perform_convergence():
-    N_cells = 1000
+    N_cells = 100000
     N_ang_bench = 1024
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136, 406])
@@ -49,18 +49,18 @@ def perform_convergence():
     reaction_rate_tableau = np.zeros((N_ang_list.size+1, N_ang_list.size-1))
     opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
     print(reaction_rate_bench, 'bench reaction')
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
+            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
         
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
         
         psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
         
         phi_cc_true[iang,:] = phicc
         reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], -0.5, 0.5)
