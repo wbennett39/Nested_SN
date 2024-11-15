@@ -52,6 +52,8 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     while tolerance_achieved == False and iteration <= maxits:
         
         iteration += 1
+        if iteration == maxits -1:
+            print('max iterations')
         
         source_ob.make_source()
 
