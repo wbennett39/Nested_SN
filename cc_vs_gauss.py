@@ -12,30 +12,38 @@ from matplotlib import ticker
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge():
-    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000,100000 ])
+    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000, 500000 ])
     reaction_list = np.zeros(N_cells_list.size)
-    N_ang_bench = 512
+    J_list = np.zeros(N_cells_list.size)
+    N_ang_bench = 1024
+    tol = 1e-8
     opacity = '3_material'
     for k, cells, in enumerate(N_cells_list):
-
+        dx = 5/cells
         psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
         reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
-        print(reaction_rate_bench)
-        print(5/cells, 'dx')
+        print('RR', reaction_rate_bench, 'dx = ', dx)
+        print('J+', Jb[1], 'dx = ', dx)
+        print('tol =', tol)
         reaction_list[k] = reaction_rate_bench
+        J_list[k] = Jb[1]
+        print(abs(reaction_list[k]-reaction_list[k-1]), 'reaction rate diff')
+        print(abs(J_list[k] - J_list[k-1]), 'J diff')
     
     plt.loglog(N_cells_list, np.abs(reaction_list))
     plt.show()
-    print(np.abs(reaction_list[-2] - reaction_list[-1]), 'tolerance')
+    print(np.abs(reaction_list[-2] - reaction_list[-1]), 'tolerance RR')
+    print(np.abs(J_list[-2] - J_list[-1]), 'tolerance RR')
 
 
 
 
 
 def perform_convergence():
-    # N_cells = 500000
-    N_cells = 1500
+    N_cells = 500
+    print(5/N_cells, 'dx')
+    # N_cells = 1500
     N_ang_bench = 1024
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136, 406])
@@ -99,23 +107,24 @@ def perform_convergence():
     reaction_rate_estimate_wynn = np.zeros(N_ang_list.size)
     J_err_estimate_wynn = np.zeros(N_ang_list.size)
     
-    for ang in range(2,N_ang_list.size):
+    for ang in range(2,N_ang_list.size+1):
         target_estimate = np.zeros(N_cells)
-        J_err_estimate_lr[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'linear_regression', target=N_ang_list[ang])
-        J_err_estimate_rich[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'richardson', target=N_ang_list[ang])
-        J_err_estimate_diff[ang] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'difference', target=N_ang_list[ang])
-        reaction_err_estimate_diff[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'linear_regression', target=N_ang_list[ang])
-        reaction_rate_estimate_lr[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'difference', target=N_ang_list[ang])
-        reaction_rate_estimate_rich[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'richardson', target=N_ang_list[ang])
-        reaction_rate_estimate_wynn[ang] =  np.abs(reaction_rate_tableau[3:,3][ang-2] - reaction_rate_tableau[1:,1][ang] )
-        J_err_estimate_wynn[ang] = np.abs(tableauJcc[-1][3:,3][ang-2] - tableauJcc[-1][1:,1][ang] )
+        J_err_estimate_lr[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'linear_regression', target=N_ang_list[ang-1])
+        J_err_estimate_rich[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'richardson', target=N_ang_list[ang-1])
+        J_err_estimate_diff[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'difference', target=N_ang_list[ang-1])
+        reaction_err_estimate_diff[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'linear_regression', target=N_ang_list[ang-1])
+        reaction_rate_estimate_lr[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'difference', target=N_ang_list[ang-1])
+        reaction_rate_estimate_rich[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'richardson', target=N_ang_list[ang-1])
+        if ang < N_ang_list.size:
+            reaction_rate_estimate_wynn[ang] =  np.abs(reaction_rate_tableau[3:,3][ang-2] - reaction_rate_tableau[1:,1][ang] )
+            J_err_estimate_wynn[ang] = np.abs(tableauJcc[-1][3:,3][ang-2] - tableauJcc[-1][1:,1][ang] )
         # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
-            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference', target = N_ang_list[ang])
+            target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference', target = N_ang_list[ang-1])
             # target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], phi_cc_true[0:ang, ix], method = method)
-            phi_err_estimate[ang, ix] = target_estimate[ix]
+            phi_err_estimate[ang-1, ix] = target_estimate[ix]
             # print(target_estimate[ix], phib[ix])
-        err_estimate[ang] = RMSE(target_estimate, target_estimate*0)
+        err_estimate[ang-1] = RMSE(target_estimate, target_estimate*0)
     print(tableauJcc[-1][1:, 1][0:], 'J tab')
     print(cc_err[2], 'cc err J')
     plt.figure('Scalar flux')
@@ -133,14 +142,15 @@ def perform_convergence():
     plt.show()
 
     plt.figure('J')
+
     # plt.loglog(N_ang_list, cc_err[1], 'r--^', mfc = 'none',  label = 'left')
     # plt.loglog(N_ang_list, gauss_err[1], 'b--o', mfc = 'none',  label = 'left')
     plt.loglog(N_ang_list, cc_err[2], 'b-^', mfc = 'none',  label = 'Clenshaw-Curtis')
     plt.loglog(N_ang_list, gauss_err[2], 'r-o', mfc = 'none', label = 'Gauss-Lobatto')
     plt.loglog(N_ang_list, gaussl_err[2], 'g-s', mfc = 'none', label = 'Gauss-Legendre')
-    plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
-    plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'power law')
-    plt.loglog(N_ang_list[2:], J_err_estimate_rich[2:], 'k:', label = 'Richardson')
+    plt.loglog(N_ang_list[1:], J_err_estimate_diff[1:], 'k--', label = 'difference')
+    plt.loglog(N_ang_list[1:], J_err_estimate_lr[1:], 'k-.', label = 'power law')
+    plt.loglog(N_ang_list[1:], J_err_estimate_rich[1:], 'k:', label = 'Richardson')
     plt.loglog(N_ang_list[2:],J_err_estimate_wynn[2:] , 'k-x', label = r'Wynn-$\epsilon$' )
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
