@@ -34,7 +34,8 @@ def spatial_converge():
 
 
 def perform_convergence():
-    N_cells = 100000
+    # N_cells = 500000
+    N_cells = 1500
     N_ang_bench = 1024
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136, 406])
@@ -95,6 +96,8 @@ def perform_convergence():
     reaction_rate_estimate_lr = np.zeros(N_ang_list.size)
     J_err_estimate_rich = np.zeros(N_ang_list.size)
     reaction_rate_estimate_rich = np.zeros(N_ang_list.size)
+    reaction_rate_estimate_wynn = np.zeros(N_ang_list.size)
+    J_err_estimate_wynn = np.zeros(N_ang_list.size)
     
     for ang in range(2,N_ang_list.size):
         target_estimate = np.zeros(N_cells)
@@ -104,6 +107,8 @@ def perform_convergence():
         reaction_err_estimate_diff[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'linear_regression', target=N_ang_list[ang])
         reaction_rate_estimate_lr[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'difference', target=N_ang_list[ang])
         reaction_rate_estimate_rich[ang] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'richardson', target=N_ang_list[ang])
+        reaction_rate_estimate_wynn[ang] =  np.abs(reaction_rate_tableau[3:,3][ang-2] - reaction_rate_tableau[1:,1][ang] )
+        J_err_estimate_wynn[ang] = np.abs(tableauJcc[-1][3:,3][ang-2] - tableauJcc[-1][1:,1][ang] )
         # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
             target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference', target = N_ang_list[ang])
@@ -136,7 +141,7 @@ def perform_convergence():
     plt.loglog(N_ang_list[2:], J_err_estimate_diff[2:], 'k--', label = 'difference')
     plt.loglog(N_ang_list[2:], J_err_estimate_lr[2:], 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], J_err_estimate_rich[2:], 'k:', label = 'Richardson')
-    plt.loglog(N_ang_list[2:], np.abs(tableauJcc[-1][3:,3][-1] - tableauJcc[-1][1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[2:],J_err_estimate_wynn[2:] , 'k-x', label = r'Wynn-$\epsilon$' )
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
@@ -183,7 +188,7 @@ def perform_convergence():
     plt.loglog(N_ang_list[2:], np.abs(reaction_err_estimate_diff[2:]), 'k--', label = 'difference' )
     plt.loglog(N_ang_list[2:], np.abs(reaction_rate_estimate_lr[2:]), 'k-.', label = 'power law')
     plt.loglog(N_ang_list[2:], np.abs(reaction_rate_estimate_rich[2:]), 'k:', label = 'Richardson')
-    plt.loglog(N_ang_list[2:], np.abs(reaction_rate_tableau[3:,3][-1] - reaction_rate_tableau[1:,1][2:] ) , 'k-x', label = r'Wynn-$\epsilon$' )
+    plt.loglog(N_ang_list[2:], reaction_rate_estimate_wynn[2:] , 'k-x', label = r'Wynn-$\epsilon$' )
 
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('reaction rate error', fontsize = 16)
