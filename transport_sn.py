@@ -84,7 +84,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         max_err = np.max(err)
         phi_old = np.copy(phi)
         count += 1
-        print(iteration, ' iteration', max_err, ' maximum error')
+        # print(iteration, ' iteration', max_err, ' maximum error')
         if count  == 50:
 
             print(iteration, ' iteration', max_err, ' maximum error')
