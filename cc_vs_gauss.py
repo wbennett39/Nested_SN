@@ -12,11 +12,11 @@ from matplotlib import ticker
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge():
-    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000, 500000 ])
+    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000, 500000, 1000000 ])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
-    N_ang_bench = 1024
-    tol = 1e-8
+    N_ang_bench = 16
+    tol = 1e-15
     opacity = '3_material'
     for k, cells, in enumerate(N_cells_list):
         dx = 5/cells
@@ -41,7 +41,7 @@ def spatial_converge():
 
 
 def perform_convergence():
-    N_cells = 5000
+    N_cells = 500
     print(5/N_cells, 'dx')
     # N_cells = 1500
     N_ang_bench = 1024
@@ -68,18 +68,18 @@ def perform_convergence():
     reaction_rate_nested = np.zeros(N_ang_list.size)
     opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
     print(reaction_rate_bench, 'bench reaction')
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
+            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 1e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]))
         
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss')
         
         psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
         
         phi_cc_true[iang,:] = phicc
         reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], -0.5, 0.5)
@@ -102,6 +102,7 @@ def perform_convergence():
         for ix in range(N_cells):
             phitest[ix] = tableaucc[ix][1:,1][iang]
         reaction_rate_nested[iang] = reaction_rate(cell_centerscc, phitest , sigmas[0], -0.5, 0.5)
+        reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested)
 
         if iang >= 2:
             target_estimate = np.zeros(N_cells)
@@ -127,7 +128,7 @@ def perform_convergence():
     
 
 
-    reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested)
+    
     
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
    

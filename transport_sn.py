@@ -89,7 +89,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
                 phi_ob_we.make_phi(psi, ws)
                 phi = phi_ob_we.phi
-                tableau = phi_ob_we.tableau
+                tableau = phi_ob_we.tableau 
                 tableau_J = phi_ob_we.tableauJp
                 # print(phi-phi_old)
             else:
