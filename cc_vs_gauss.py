@@ -41,7 +41,7 @@ def spatial_converge():
 
 
 def perform_convergence():
-    N_cells = 500
+    N_cells = 5000
     print(5/N_cells, 'dx')
     # N_cells = 1500
     N_ang_bench = 1024
@@ -56,6 +56,16 @@ def perform_convergence():
     reaction_rate_gauss = np.zeros(N_ang_list.size)
     reaction_rate_gauss_l = np.zeros(N_ang_list.size)
     reaction_rate_tableau = np.zeros((N_ang_list.size+1, N_ang_list.size-1))
+    err_estimate = np.zeros(N_ang_list.size)
+    J_err_estimate_diff = np.zeros(N_ang_list.size)
+    J_err_estimate_lr = np.zeros(N_ang_list.size)
+    reaction_err_estimate_diff = np.zeros(N_ang_list.size)
+    reaction_rate_estimate_lr = np.zeros(N_ang_list.size)
+    J_err_estimate_rich = np.zeros(N_ang_list.size)
+    reaction_rate_estimate_rich = np.zeros(N_ang_list.size)
+    reaction_rate_estimate_wynn = np.zeros(N_ang_list.size)
+    J_err_estimate_wynn = np.zeros(N_ang_list.size)
+    reaction_rate_nested = np.zeros(N_ang_list.size)
     opacity = '3_material'
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-15, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
@@ -87,37 +97,43 @@ def perform_convergence():
         cc_err[0, iang] = RMSE(phicc, phib)
         cc_err[1, iang] = RMSE(Jb[0], Jcc[0])
         cc_err[2, iang] = RMSE(Jb[1], Jcc[1])
-    reaction_rate_nested = np.zeros(N_ang_list.size)
-    for iang in range(N_ang_list.size):
+
         phitest = np.zeros(N_cells)
         for ix in range(N_cells):
             phitest[ix] = tableaucc[ix][1:,1][iang]
         reaction_rate_nested[iang] = reaction_rate(cell_centerscc, phitest , sigmas[0], -0.5, 0.5)
 
+        if iang >= 2:
+            target_estimate = np.zeros(N_cells)
+            J_err_estimate_lr[iang-1] = convergence_estimator(N_ang_list[0:iang], tableauJcc[-1][1:, 1][0:iang], method = 'linear_regression', target=N_ang_list[iang-1])
+            J_err_estimate_rich[iang-1] = convergence_estimator(N_ang_list[0:iang], tableauJcc[-1][1:, 1][0:iang], method = 'richardson', target=N_ang_list[iang-1])
+            J_err_estimate_diff[iang-1] = convergence_estimator(N_ang_list[0:iang], tableauJcc[-1][1:, 1][0:iang], method = 'difference', target=N_ang_list[iang-1])
+            reaction_err_estimate_diff[iang-1] = convergence_estimator(N_ang_list[0:iang], reaction_rate_nested[0:iang], method = 'linear_regression', target=N_ang_list[iang-1])
+            reaction_rate_estimate_lr[iang-1] = convergence_estimator(N_ang_list[0:iang], reaction_rate_nested[0:iang], method = 'difference', target=N_ang_list[iang-1])
+            reaction_rate_estimate_rich[iang-1] = convergence_estimator(N_ang_list[0:iang], reaction_rate_nested[0:iang], method = 'richardson', target=N_ang_list[iang-1])
+            print(reaction_err_estimate_diff)
+            if iang < N_ang_list.size:
+                reaction_rate_estimate_wynn[iang] =  np.abs(reaction_rate_tableau[3:,3][iang-2] - reaction_rate_tableau[1:,1][iang] )
+                J_err_estimate_wynn[iang] = np.abs(tableauJcc[-1][3:,3][iang-2] - tableauJcc[-1][1:,1][iang] )
+    target_estimate = np.zeros(N_cells)
+    J_err_estimate_lr[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'linear_regression', target=N_ang_list[-1])
+    J_err_estimate_rich[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'richardson', target=N_ang_list[-1])
+    J_err_estimate_diff[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'difference', target=N_ang_list[-1])
+    reaction_err_estimate_diff[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'linear_regression', target=N_ang_list[-1])
+    reaction_rate_estimate_lr[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'difference', target=N_ang_list[-1])
+    reaction_rate_estimate_rich[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'richardson', target=N_ang_list[-1])
+
+
+    
+
+
     reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested)
     
     phi_err_estimate = np.zeros((N_ang_list.size, N_cells))
-    err_estimate = np.zeros(N_ang_list.size)
-    J_err_estimate_diff = np.zeros(N_ang_list.size)
-    J_err_estimate_lr = np.zeros(N_ang_list.size)
-    reaction_err_estimate_diff = np.zeros(N_ang_list.size)
-    reaction_rate_estimate_lr = np.zeros(N_ang_list.size)
-    J_err_estimate_rich = np.zeros(N_ang_list.size)
-    reaction_rate_estimate_rich = np.zeros(N_ang_list.size)
-    reaction_rate_estimate_wynn = np.zeros(N_ang_list.size)
-    J_err_estimate_wynn = np.zeros(N_ang_list.size)
+   
     
     for ang in range(2,N_ang_list.size+1):
-        target_estimate = np.zeros(N_cells)
-        J_err_estimate_lr[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'linear_regression', target=N_ang_list[ang-1])
-        J_err_estimate_rich[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'richardson', target=N_ang_list[ang-1])
-        J_err_estimate_diff[ang-1] = convergence_estimator(N_ang_list[0:ang], tableauJcc[-1][1:, 1][0:ang], method = 'difference', target=N_ang_list[ang-1])
-        reaction_err_estimate_diff[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'linear_regression', target=N_ang_list[ang-1])
-        reaction_rate_estimate_lr[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'difference', target=N_ang_list[ang-1])
-        reaction_rate_estimate_rich[ang-1] = convergence_estimator(N_ang_list[0:ang], reaction_rate_nested[0:ang], method = 'richardson', target=N_ang_list[ang-1])
-        if ang < N_ang_list.size:
-            reaction_rate_estimate_wynn[ang] =  np.abs(reaction_rate_tableau[3:,3][ang-2] - reaction_rate_tableau[1:,1][ang] )
-            J_err_estimate_wynn[ang] = np.abs(tableauJcc[-1][3:,3][ang-2] - tableauJcc[-1][1:,1][ang] )
+        
         # J_err_estimate[ang] = convergence_estimator(N_ang_list[0:ang], J_list[0:ang], method = method, target=N_ang_bench)
         for ix in range(N_cells):
             target_estimate[ix] = convergence_estimator(N_ang_list[0:ang], tableaucc[ix][1:, 1][0:ang], method = 'difference', target = N_ang_list[ang-1])
