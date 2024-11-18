@@ -234,7 +234,7 @@ class mesh_class:
         if self.opacity_function == 'constant':
             self.mesh = np.linspace(-self.L/2, self.L/2, self.N_cells+1)
         elif self.opacity_function == '3_material':
-            third = int(int(self.N_cells + 1)/3)
+            third = int(2*int(self.N_cells + 1)/5)
             rest = int(self.N_cells+1-2*third)
             N = rest-1
             x1 = (N/(2*(1-N)))
