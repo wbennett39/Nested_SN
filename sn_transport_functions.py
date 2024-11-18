@@ -3,6 +3,8 @@ import numpy as np
 from chaospy.quadrature import clenshaw_curtis
 import math
 from functions import quadrature
+from scipy.interpolate import interp1d
+import scipy.integrate as integrate
 from numba import njit
 def cc_quad(N):
     x, w= clenshaw_curtis(N-1,(-1,1))
@@ -417,7 +419,9 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     if xs[index1 + 1] < x2:
         index1 +=1 
     # print(xs[index1:index2], 'xs in integral')
-    result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
+    interp_phi = interp1d(xs, phi)
+    result = integrate.quad(interp_phi, x1, x2)[0]
+    # result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
     return result
 # @njit
 def  wynn_epsilon_algorithm(S):
