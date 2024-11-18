@@ -41,7 +41,7 @@ def spatial_converge():
 
 
 def perform_convergence():
-    N_cells = 50000
+    N_cells = 500000
     print(5/N_cells, 'dx')
     # N_cells = 1500
     N_ang_bench = 1024
@@ -67,6 +67,12 @@ def perform_convergence():
     J_err_estimate_wynn = np.zeros(N_ang_list.size)
     reaction_rate_nested = np.zeros(N_ang_list.size)
     opacity = '3_material'
+    #prime numba
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 50, N_ang = 16, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
+    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
+
+
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
