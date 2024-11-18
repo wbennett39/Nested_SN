@@ -48,6 +48,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     phi_ob.make_phi(psi, ws)
     phi = phi_ob.phi
     phi_old = np.copy(phi)
+    count = 0
     
     while tolerance_achieved == False and iteration <= maxits:
         
@@ -82,7 +83,11 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         err = np.abs(phi_old - phi)
         max_err = np.max(err)
         phi_old = np.copy(phi)
-        # print(iteration, ' iteration', max_err, ' maximum error')
+        count += 1
+        if count  == 1000:
+
+            print(iteration, ' iteration', max_err, ' maximum error')
+            count = 0
         if max_err <= tol:
             tolerance_achieved = True
             if wynn_epsilon == True and laststep == True:
