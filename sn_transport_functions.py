@@ -419,7 +419,7 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     if xs[index1 + 1] < x2:
         index1 +=1 
     # print(xs[index1:index2], 'xs in integral')
-    interp_phi = interp1d(xs, phi)
+    interp_phi = interp1d(xs, phi * sigma)
     result = integrate.quad(interp_phi, x1, x2)[0]
     # result = trapezoid_integrator(xs[index1:index2], phi[index1:index2] * sigma[index1:index2])
     return result
