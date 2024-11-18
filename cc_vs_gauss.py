@@ -102,7 +102,7 @@ def perform_convergence():
         for ix in range(N_cells):
             phitest[ix] = tableaucc[ix][1:,1][iang]
         reaction_rate_nested[iang] = reaction_rate(cell_centerscc, phitest , sigmas[0], -0.5, 0.5)
-        reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested)
+        reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested[0:iang+1])
 
         if iang >= 2:
             target_estimate = np.zeros(N_cells)
