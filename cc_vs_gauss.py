@@ -77,6 +77,7 @@ def perform_convergence():
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
     print(reaction_rate_bench, 'bench reaction')
+    print(Jb[1], 'bench J+')
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]))
@@ -178,7 +179,7 @@ def perform_convergence():
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
-    plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
+    plt.ylabel(r'$|J_b-J_N|$', fontsize = 16)
     show_loglog(f'J_converge_method', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
     # plt.savefig(f'J_converge_method={method}.pdf')
     plt.show()
@@ -196,7 +197,7 @@ def perform_convergence():
     # plt.loglog(N_ang_list[4:], np.abs(tableauJcc[-1][5:,5] - Jb[1]) , '-s', label = r'Wynn-$\epsilon$' )
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
-    plt.ylabel(r'$|J^+_b-J^+_N|$', fontsize = 16)
+    plt.ylabel(r'FOM', fontsize = 16)
     show_loglog(f'J_error_compare', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
     # plt.savefig(f'J_converge_method={method}.pdf')
     plt.show()
@@ -237,7 +238,7 @@ def perform_convergence():
     plt.loglog(N_ang_list, np.ones(N_ang_list.size), 'k-')
 
     plt.xlabel(r'$S_N$ order', fontsize = 16)
-    plt.ylabel('reaction rate error', fontsize = 16)
+    plt.ylabel('FOM', fontsize = 16)
     plt.legend()
     show_loglog('reaction_rate_error_compare', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
 
@@ -250,7 +251,7 @@ def estimate_error(ang_list, tableau):
     return err_estimate
 
 
-def nested_plot(mkrs=8):
+def nested_plot(mkrs=8, width = 5, height = 5):
     x1 = 2
     x2 = 6
     x3 = 16
@@ -269,9 +270,12 @@ def nested_plot(mkrs=8):
     y2 = 0.005
     y3 = 0.01
     y4 = 0.015
+    # width = 5
+    # height = 10
     # mkrs = 2
+    plt.figure(1, figsize=(width, height)) 
     ax = plt.gca()
-    plt.figure(1)
+    
     plt.plot(g1, np.ones(g1.size)*y1, 'k.', markersize = mkrs)
     plt.plot(g2, np.ones(g2.size)*y2, 'k.', markersize = mkrs)
     plt.plot(g3, np.ones(g3.size)*y3, 'k.',markersize = mkrs)
@@ -287,7 +291,7 @@ def nested_plot(mkrs=8):
     # ax.spines['left'].set_visible(False)
     plt.ylim(-0.01 + 0.008, 0.025-0.008)
     show('nested_quad_example_gs')
-    plt.figure(2)
+    plt.figure(2, figsize=(width, height)) 
     ax = plt.gca()
     plt.plot(cc1 , np.ones(cc1.size)*y1, 'k.', markersize = mkrs)
     plt.plot(cc2 , np.ones(cc2.size)*y2, 'k.',markersize = mkrs)
@@ -308,5 +312,16 @@ def nested_plot(mkrs=8):
     # plt.plot(cc2, np.ones(cc2.size) * 2, 'k-')
     show('nested_quad_example_cc')
     plt.show()
+
+def check_quadratures():
+     N_ang_list = np.array([2,6,16,46, 136, 406])
+     for N in N_ang_list:
+        # mus, ws = cc_quad(N)
+        mus, ws = quadrature(N, 'gauss_legendre')
+        ws = ws/2
+        print(np.sum(ws), 'zeroth')
+        print(np.sum(ws*mus), 'first')
+        print(np.sum(ws*mus**2), 'second')
+
 
 
