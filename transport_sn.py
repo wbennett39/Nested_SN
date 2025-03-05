@@ -74,6 +74,10 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 psiminusleft = boundary_ob('left', mu)
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
+                if right_edge == 'reflecting':
+                    psiplusright = psi[N_ang - iang-1, -1]
+    
+
             psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
         
         phi_ob.make_phi(psi, ws)
@@ -85,7 +89,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 50:
+        if count  == 500:
 
             print(iteration, ' iteration', max_err, ' maximum error')
             count = 0

@@ -2,27 +2,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 from transport_sn import solve
 from sn_transport_functions import convergence_estimator, reaction_rate, cc_quad, wynn_epsilon_algorithm
-from functions import quadrature
+from functions import quadrature, Pn2 as Pn
 import tqdm
 from show_loglog import show_loglog
 from show import show
 from matplotlib import ticker
+import time
 # This notebook will do standard convergence tests comparing cc and Gauss quadrature for a 1d steady problem
 
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
-def spatial_converge():
+def spatial_converge(opacity = '3_material', x1 = -0.5, x2 = 0.5, LL = 5.0):
     N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000, 500000, 1000000 ])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
     N_ang_bench = 16
     tol = 1e-15
-    opacity = '3_material'
+    # opacity = '3_material'
     for k, cells, in enumerate(N_cells_list):
         dx = 5/cells
         psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
-        reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+        reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
         print('RR', reaction_rate_bench, 'dx = ', dx)
         print('J+', Jb[1], 'dx = ', dx)
         print('tol =', tol)
@@ -40,9 +41,25 @@ def spatial_converge():
 
 
 
-def perform_convergence():
-    N_cells = 500000
-    print(5/N_cells, 'dx')
+def perform_convergence(problem = '3_mat'):
+    if problem == '3_mat':
+        LL = 5
+        opacity = '3_material'
+        x1 = -0.5
+        x2 = 0.5
+        etol = 5e-16
+        N_cells = 500000
+        right_edge = 'source1'
+    elif problem == 'larsen':
+        LL = 11.0
+        opacity = 'larsen'
+        x1 = -5.5
+        x2 = -4.5
+        etol = 1e-7
+        N_cells = 50
+        right_edge = 'reflecting'
+    
+    print(LL/N_cells, 'dx')
     # N_cells = 1500
     N_ang_bench = 1024
     # method = 'difference'
@@ -66,32 +83,41 @@ def perform_convergence():
     reaction_rate_estimate_wynn = np.zeros(N_ang_list.size)
     J_err_estimate_wynn = np.zeros(N_ang_list.size)
     reaction_rate_nested = np.zeros(N_ang_list.size)
-    opacity = '3_material'
+    timelist_CC = np.zeros(N_ang_list.size)
+    timelist_GLeg = np.zeros(N_ang_list.size)
+    # opacity = '3_material'
     #prime numba
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 50, N_ang = 16, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
-    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 50, N_ang = 16, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
+    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
 
-
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
-    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], -0.5, 0.5)
+    tstart = time.time()
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type='gauss')
+    reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
+    tend = time.time()
+    bench_time = tend - tstart
     print(reaction_rate_bench, 'bench reaction')
     print(Jb[1], 'bench J+')
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
-        psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]))
+
+        tstart = time.time()
+        psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]))
+        timelist_CC[iang] = time.time()-tstart
+
+        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type = 'gauss')
         
-        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type = 'gauss')
-        
-        psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = 5.0, tol = 5e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+        tstart = time.time()
+        psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e6, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+        timelist_GLeg[iang] = time.time()-tstart
         
         phi_cc_true[iang,:] = phicc
-        reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], -0.5, 0.5)
-        reaction_rate_gauss[iang] = reaction_rate(cell_centersg, phig, sigmas[0], -0.5, 0.5)
-        reaction_rate_gauss_l[iang] = reaction_rate(cell_centersgl, phigl, sigmas[0], -0.5, 0.5)
+        reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], x1, x2)
+        reaction_rate_gauss[iang] = reaction_rate(cell_centersg, phig, sigmas[0], x1, x2)
+        reaction_rate_gauss_l[iang] = reaction_rate(cell_centersgl, phigl, sigmas[0], x1, x2)
         print(reaction_rate_cc, 'cc reaction rate')
         J_list[iang] = Jcc[1]
         gauss_err[0,iang] = RMSE(phig, phib)
@@ -108,7 +134,7 @@ def perform_convergence():
         phitest = np.zeros(N_cells)
         for ix in range(N_cells):
             phitest[ix] = tableaucc[ix][1:,1][iang]
-        reaction_rate_nested[iang] = reaction_rate(cell_centerscc, phitest , sigmas[0], -0.5, 0.5)
+        reaction_rate_nested[iang] = reaction_rate(cell_centerscc, phitest , sigmas[0], x1, x2)
         reaction_rate_tableau = wynn_epsilon_algorithm(reaction_rate_nested[0:iang+1])
 
         if iang >= 2:
@@ -160,7 +186,7 @@ def perform_convergence():
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.legend()
     plt.ylabel('RMSE', fontsize = 16)
-    show_loglog(f'flux_converge', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    show_loglog(f'flux_converge_{problem}', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
 
     # plt.savefig(f'flux_converge_method={method}.pdf')
     plt.show()
@@ -180,7 +206,7 @@ def perform_convergence():
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'$|J_b-J_N|$', fontsize = 16)
-    show_loglog(f'J_converge_method', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    show_loglog(f'J_converge_method_{problem}', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
     # plt.savefig(f'J_converge_method={method}.pdf')
     plt.show()
 
@@ -198,7 +224,7 @@ def perform_convergence():
     plt.legend()
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'FOM', fontsize = 16)
-    show_loglog(f'J_error_compare', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    show_loglog(f'J_error_compare_{problem}', 1, N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
     # plt.savefig(f'J_converge_method={method}.pdf')
     plt.show()
 
@@ -209,7 +235,7 @@ def perform_convergence():
     plt.plot(cell_centersb, phib, 'k-')
     plt.xlabel(r'$x$ [cm]', fontsize = 16)
     plt.ylabel(r'$\phi$', fontsize = 16)
-    show('scalar_flux_3mat')
+    show(f'scalar_flux_{problem}')
     # plt.plot(cell_centersb, np.abs(phicc - phib), '--')
 
     plt.show()
@@ -227,7 +253,7 @@ def perform_convergence():
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('reaction rate error', fontsize = 16)
     plt.legend()
-    show_loglog('reaction_rate', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    show_loglog(f'reaction_rate_{problem}', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
 
     plt.figure('reaction rate error accuracy')
 
@@ -240,7 +266,20 @@ def perform_convergence():
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel('FOM', fontsize = 16)
     plt.legend()
-    show_loglog('reaction_rate_error_compare', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+    show_loglog(f'reaction_rate_error_compare_{problem}', 1,  N_ang_list[-1] * 1.1, choose_ticks=True, ticks = N_ang_list)
+
+
+    plt.figure('times')
+    plt.plot(N_ang_list, timelist_CC / timelist_GLeg, 'b-^', mfc = 'none')
+    plt.xlabel(r'$S_N$ order', fontsize = 16)
+    plt.ylabel('FOM')
+    show(f'time_compare_{problem}')
+
+
+
+
+
+
 
 
 def estimate_error(ang_list, tableau):
@@ -325,3 +364,50 @@ def check_quadratures():
 
 
 
+def integrate_legendre_poly():
+    n = 2
+    tol = 1e-11
+    M_list = np.array([2,4,6,8,10,12,14,16,18])
+    order_required_list_leg = M_list * 0
+    order_required_list_cc = M_list * 0
+    cc_integral = 0.0
+    gl_integral = 0.0
+    ccstop = False
+    glstop = False
+    for im, M in enumerate(M_list):
+        n = 2
+        ccstop = False
+        glstop = False
+        while glstop == False or ccstop == False:
+            xs_cc, ws_cc = cc_quad(n)
+            xs_leg, ws_leg = quadrature(n, 'gauss_legendre')
+            res_cc = Pn_quadrature(M, xs_cc, ws_cc)
+            res_gl = Pn_quadrature(M, xs_leg, ws_leg)
+            if abs(res_cc) <=tol:
+                    if ccstop == False:
+                        order_required_list_cc[im] = n
+                        ccstop = True
+            if abs(res_gl) < tol:
+      
+                    if glstop == False:
+                        order_required_list_leg[im] = n
+                        glstop = True
+            n +=1
+
+    plt.plot(M_list, order_required_list_leg, 'g-s', mfc = 'none', label = 'Gauss-Legendre')
+    plt.plot(M_list, order_required_list_cc, 'b-^', mfc = 'none', label = 'Clenshaw-Curtis')
+    plt.plot(M_list,0.5*(M_list+1), 'k--', label = r'$\frac{N+1}{2}$')
+    plt.xlabel('Polynomial order', fontsize = 16)
+    plt.ylabel('Quadrature order required', fontsize = 16)
+    plt.legend()
+    show('quadrature_comparisons')
+
+
+
+
+def Pn_quadrature(M, xs, ws, a= -1.0, b = 1.0):
+    Pnvec = np.zeros(xs.size)
+    for ix, xx in enumerate(xs):
+        arg = (b-a)/2 * xx + (a+b)/2
+        Pnvec[ix] = Pn(M, arg)
+    return (b-a)/2 * np.sum(ws * Pnvec)
