@@ -21,7 +21,8 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     sigma_a = sigma_ob.sigma_a
     sigma_s = sigma_ob.sigma_s
     sigma_t = sigma_ob.sigma_t
-    print(sigma_a, 'sigma_a')
+    print(sigma_t)
+
     # Initialize angular flux
     IC_ob = IC_class(N_ang, N_cells, IC, mesh)
     IC_ob.make_IC()
@@ -90,7 +91,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 15000:
+        if count  == 150000:
 
             print(iteration, ' iteration', max_err, ' maximum error')
             count = 0

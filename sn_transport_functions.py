@@ -205,7 +205,7 @@ class sigma_class:
             for it in range(self.mesh.size-1):
                 
                     for it in range(self.mesh.size-1):
-                        if -5.5 < self.mesh[it] < -4.5:
+                        if -5.5 <= self.mesh[it] < -4.5:
                             self.sigma_a[it] = 2.0
                         else:
                             self.sigma_a[it] = 0.0
@@ -273,24 +273,25 @@ class mesh_class:
             # assert (cell_centers == -0.5).any()
             # assert (cell_centers == 0.5).any()
         elif self.opacity_function == 'larsen':
-            # third = int(int(self.N_cells + 1)/2)
-            # rest = int(self.N_cells+1-third)
-            # N = rest-1
-            # self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, third + 1)[:-1], np.linspace(-4.5, self.L/2, rest)))
+            third = int(int(self.N_cells + 1)/2)
+            rest = int(self.N_cells+1-third)
+            N = rest-1
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, third )[:], np.linspace(-4.5, self.L/2, rest+1)[1:]))
             
             # assert (self.mesh == -0.5).any()
             # assert (self.mesh == 0.5).any()
 
             # print(cell_centers)
 
-            absorbing = 10
-            rest = self.N_cells + 1 - 10
-            self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, absorbing + 1)[:-1], np.linspace(-4.5, self.L/2, rest)))
+            # absorbing = 10
+            # rest = self.N_cells + 1 - 10
+            # self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, absorbing), np.linspace(-4.5, self.L/2, rest+1)[1:]))
 
             assert self.mesh.size == self.N_cells +1
             cell_centers = np.copy(self.mesh*0)
             for ix in range(cell_centers.size-1):
                 cell_centers[ix] = (self.mesh[ix+1] + self.mesh[ix])/2
+            print(self.mesh, 'mesh')
 
 
 
@@ -366,6 +367,7 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
+
     # print(sigma_s, 'scattering')
     # print(sigma_t, 'total')
     # print(mesh)
