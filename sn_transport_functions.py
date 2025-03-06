@@ -203,11 +203,13 @@ class sigma_class:
         elif self.opacity_function == 'larsen':
             self.sigma_a = np.zeros(self.mesh.size-1)
             for it in range(self.mesh.size-1):
-                if -5.5 < self.mesh[it] < -4.5:
+                
                     for it in range(self.mesh.size-1):
-                        self.sigma_a[it] = 2.0
-                    else:
-                        self.sigma_a[it] = 0.0
+                        if -5.5 < self.mesh[it] < -4.5:
+                            self.sigma_a[it] = 2.0
+                        else:
+                            self.sigma_a[it] = 0.0
+                            
         else:
             assert 0 
 
@@ -229,7 +231,7 @@ class sigma_class:
             self.sigma_t = np.zeros(self.mesh.size-1)  
             self.sigma_s = np.zeros(self.mesh.size-1) 
             for it in range(self.mesh.size-1):
-                if -5.5 < self.mesh[it] < -4.5:
+                if -5.5 <= self.mesh[it] < -4.5:
                     self.sigma_t[it] = 2.0
                 else:
                     self.sigma_s[it] = 100.0
@@ -271,15 +273,22 @@ class mesh_class:
             # assert (cell_centers == -0.5).any()
             # assert (cell_centers == 0.5).any()
         elif self.opacity_function == 'larsen':
-            third = int(int(self.N_cells + 1)/3)
-            rest = int(self.N_cells+1-third)
-            N = rest-1
-            self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, third + 1)[:-1], np.linspace(-4.5, self.L/2, rest)))
-            assert self.mesh.size == self.N_cells +1
+            # third = int(int(self.N_cells + 1)/2)
+            # rest = int(self.N_cells+1-third)
+            # N = rest-1
+            # self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, third + 1)[:-1], np.linspace(-4.5, self.L/2, rest)))
+            
             # assert (self.mesh == -0.5).any()
             # assert (self.mesh == 0.5).any()
-            cell_centers = np.copy(self.mesh*0)
+
             # print(cell_centers)
+
+            absorbing = 10
+            rest = self.N_cells + 1 - 10
+            self.mesh = np.concatenate((np.linspace(-self.L/2, -4.5, absorbing + 1)[:-1], np.linspace(-4.5, self.L/2, rest)))
+
+            assert self.mesh.size == self.N_cells +1
+            cell_centers = np.copy(self.mesh*0)
             for ix in range(cell_centers.size-1):
                 cell_centers[ix] = (self.mesh[ix+1] + self.mesh[ix])/2
 
@@ -357,6 +366,9 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
+    # print(sigma_s, 'scattering')
+    # print(sigma_t, 'total')
+    # print(mesh)
     if mun >0.0:
         for k in range(0, N_cells):
             q = s[k] + phi[k]
@@ -449,8 +461,8 @@ def reaction_rate(xs, phi, sigma, x1, x2):
     index2 = np.argmin(np.abs(xs-x2))
     if xs[index1 + 1] < x2:
         index1 +=1 
-    if x1 < xs[-1]:
-        x1 = xs[-1]
+    if x1 < xs[0]:
+        x1 = xs[0]
     
     # print(xs[index1:index2], 'xs in integral')
     interp_phi = interp1d(xs, phi * sigma)

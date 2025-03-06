@@ -12,17 +12,18 @@ import time
 
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
-def spatial_converge(opacity = '3_material', x1 = -0.5, x2 = 0.5, LL = 5.0):
-    N_cells_list = np.array([10, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 10000, 50000, 500000, 1000000 ])
+def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
+    N_cells_list = np.array([100, 200, 300, 400, 500 ])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
     N_ang_bench = 16
-    tol = 1e-15
+    tol = 1e-8
     # opacity = '3_material'
+    plt.ion()
     for k, cells, in enumerate(N_cells_list):
         dx = 5/cells
-        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type='gauss')
+        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'reflecting', IC = 'cold', source = 'off',
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e5, input_source = np.array([0.0]), quad_type='gauss')
         reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
         print('RR', reaction_rate_bench, 'dx = ', dx)
         print('J+', Jb[1], 'dx = ', dx)
@@ -31,11 +32,19 @@ def spatial_converge(opacity = '3_material', x1 = -0.5, x2 = 0.5, LL = 5.0):
         J_list[k] = Jb[1]
         print(abs(reaction_list[k]-reaction_list[k-1]), 'reaction rate diff')
         print(abs(J_list[k] - J_list[k-1]), 'J diff')
-    
+        plt.figure('phi')
+        plt.plot(5.5+cell_centersb, phib, 'k-')
+        plt.xlabel(r'$x$ [cm]', fontsize = 16)
+        plt.ylabel(r'$\phi$', fontsize = 16)
+        plt.ylim(0.0, 0.14)
+        show(f'scalar_flux_larsen')
+    plt.figure('converge')
     plt.loglog(N_cells_list, np.abs(reaction_list))
     plt.show()
     print(np.abs(reaction_list[-2] - reaction_list[-1]), 'tolerance RR')
     print(np.abs(J_list[-2] - J_list[-1]), 'tolerance RR')
+
+
 
 
 

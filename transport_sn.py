@@ -21,6 +21,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     sigma_a = sigma_ob.sigma_a
     sigma_s = sigma_ob.sigma_s
     sigma_t = sigma_ob.sigma_t
+    print(sigma_a, 'sigma_a')
     # Initialize angular flux
     IC_ob = IC_class(N_ang, N_cells, IC, mesh)
     IC_ob.make_IC()
@@ -50,7 +51,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     phi_old = np.copy(phi)
     count = 0
     
-    while tolerance_achieved == False and iteration <= maxits:
+    while tolerance_achieved == False:
         
         iteration += 1
         if iteration == maxits -1:
@@ -89,11 +90,11 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 500:
+        if count  == 15000:
 
             print(iteration, ' iteration', max_err, ' maximum error')
             count = 0
-        if max_err <= tol:
+        if max_err <= tol or iteration >= maxits:
             tolerance_achieved = True
             if wynn_epsilon == True and laststep == True:
                 phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
