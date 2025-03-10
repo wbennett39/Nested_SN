@@ -51,6 +51,9 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     phi = phi_ob.phi
     phi_old = np.copy(phi)
     count = 0
+    cell_centers = np.zeros(N_cells)
+    for ix in range(N_cells):
+        cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
     
     while tolerance_achieved == False:
         
@@ -88,12 +91,14 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
 
         err = np.abs(phi_old - phi)
         max_err = np.max(err)
+        max_err_loc = np.argmin(np.abs(max_err - err ))
+
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 1500000:
+        if count  == 500000:
 
-            print(iteration, ' iteration', max_err, ' maximum error')
+            print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
             count = 0
         if max_err <= tol or iteration >= maxits:
             tolerance_achieved = True
@@ -123,9 +128,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 psiplusright = boundary_ob('right', mu)
 
             psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
-    cell_centers = np.zeros(N_cells)
-    for ix in range(N_cells):
-        cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
+
     J = np.zeros(2)
     J[0] = phi_ob.J(psi[:,0])
     J[1] = phi_ob.J(psi[:,-1])

@@ -60,14 +60,16 @@ def perform_convergence(problem = '3_mat', nruns = 1):
         N_cells = 500000
         right_edge = 'source1'
         strength = 1.0
+        IC = 'cold'
     elif problem == 'larsen':
         LL = 11.0
         opacity = 'larsen'
+        IC = 'larsen'
         x1 = -5.5
         x2 = -4.5
         etol = 5e-11
         N_cells = 40
-        right_edge = 'reflecting'
+        right_edge = 'source1'
         strength = 2.0
     
     print(LL/N_cells, 'dx')
@@ -98,12 +100,14 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     timelist_GLeg = np.zeros(N_ang_list.size)
     # opacity = '3_material'
     #prime numba
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 10, N_ang = 16, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 10, N_ang = 6, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
+    
+    print('primed')
 
     tstart = time.time()
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
     tend = time.time()
@@ -122,15 +126,15 @@ def perform_convergence(problem = '3_mat', nruns = 1):
 
         for nn in range(nruns):
             tstart = time.time()
-            psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
                 opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]))
             timelist_CC[iang] += (time.time()-tstart)/nruns
 
-        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss')
         for nn in range(nruns):
             tstart = time.time()
-            psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+            psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
                 opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
             timelist_GLeg[iang] += (time.time()-tstart)/nruns
         
@@ -286,10 +290,10 @@ def perform_convergence(problem = '3_mat', nruns = 1):
 
 
     plt.figure('times')
-    plt.plot(N_ang_list, timelist_CC / timelist_GLeg, 'b-^', mfc = 'none')
+    plt.plot(N_ang_list[1:], timelist_CC[1:] / timelist_GLeg[1:], 'b-^', mfc = 'none')
     plt.xlabel(r'$S_N$ order', fontsize = 16)
     plt.ylabel(r'$ t_{\mathrm{Clenshaw-Curtis}}/ t_{\mathrm{Gauss-Legendre}}$', fontsize = 16)
-    plt.ylim(0.79, 1.31)
+    # plt.ylim(0.79, 1.31)
     show(f'time_compare_{problem}')
 
 
