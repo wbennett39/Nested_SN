@@ -11,6 +11,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     mesh_ob = mesh_class(N_cells, L, opacity_function)
     mesh_ob.make_mesh()
     mesh = mesh_ob.mesh
+    print(N_ang, 'angles')
     # Initialize source
     source_ob = source_class(source, mesh,  input_source, source_strength)
     # initialize cross sections
@@ -96,7 +97,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 500000:
+        if count  == 100000:
 
             print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
             count = 0

@@ -50,7 +50,7 @@ def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
 
 
 
-def perform_convergence(problem = '3_mat', nruns = 1):
+def perform_convergence(problem = '3_mat', nruns = 3):
     if problem == '3_mat':
         LL = 5
         opacity = '3_material'
@@ -61,6 +61,7 @@ def perform_convergence(problem = '3_mat', nruns = 1):
         right_edge = 'source1'
         strength = 1.0
         IC = 'cold'
+        N_ang_bench = 1024
     elif problem == 'larsen':
         LL = 11.0
         opacity = 'larsen'
@@ -68,13 +69,14 @@ def perform_convergence(problem = '3_mat', nruns = 1):
         x1 = -5.5
         x2 = -4.5
         etol = 5e-11
-        N_cells = 40
+        N_cells = 200
         right_edge = 'source1'
         strength = 2.0
+        N_ang_bench = 1024
     
     print(LL/N_cells, 'dx')
     # N_cells = 1500
-    N_ang_bench = 1024
+    
     # method = 'difference'
     N_ang_list = np.array([2,6,16,46, 136, 406])
     J_list = np.zeros(N_ang_list.size)
@@ -101,7 +103,7 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     # opacity = '3_material'
     #prime numba
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 10, N_ang = 6, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
+            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = 1e-7, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
     
     print('primed')
@@ -114,11 +116,14 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     bench_time = tend - tstart
     print(reaction_rate_bench, 'bench reaction')
     print(Jb[1], 'bench J+')
+    plt.ion()
     plt.figure('phi')
     plt.plot(cell_centersb, phib, 'k-')
     plt.xlabel(r'$x$ [cm]', fontsize = 16)
     plt.ylabel(r'$\phi$', fontsize = 16)
+    plt.ylim(0.0, 0.14)
     show(f'scalar_flux_{problem}')
+
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         print('########################################')
         print(ang, ' angles')
@@ -132,6 +137,7 @@ def perform_convergence(problem = '3_mat', nruns = 1):
 
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss')
+        
         for nn in range(nruns):
             tstart = time.time()
             psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',

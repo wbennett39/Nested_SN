@@ -291,7 +291,7 @@ class mesh_class:
             cell_centers = np.copy(self.mesh*0)
             for ix in range(cell_centers.size-1):
                 cell_centers[ix] = (self.mesh[ix+1] + self.mesh[ix])/2
-            print(self.mesh, 'mesh')
+            # print(self.mesh, 'mesh')
 
 
 
