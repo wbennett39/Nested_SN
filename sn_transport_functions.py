@@ -314,11 +314,12 @@ class source_class:
             self.s = self.input_source
         
 class IC_class:
-    def __init__(self, N_ang, N_cells, IC, mesh):
+    def __init__(self, N_ang, N_cells, IC, mesh, angles):
         self.IC = IC
         self.mesh = mesh
         self.N_ang = N_ang
         self.N_cells = int(N_cells)
+        self.angles = angles
     
     def make_IC(self):
         if self.IC == 'cold':
@@ -332,6 +333,20 @@ class IC_class:
             # self.angular_flux[:, middle-1:middle+1] = 1/dx
             for ang in range(self.N_ang):
                 self.angular_flux[ang,: ] = np.exp(-x**2/2/sigma**2)/sigma/math.sqrt(2*math.pi) * 4
+        elif self.IC == 'larsen':
+            self.angular_flux = np.zeros((self.N_ang, self.N_cells))
+            mat_bound = np.argmin(np.abs(self.mesh+4.5))
+            x =  0.5*(self.mesh[1:] + self.mesh[0:-1])
+            for ang in range(self.N_ang):
+                mu = self.angles[ang]
+                if mu > 0:
+                    self.angular_flux[ang,:mat_bound ] = np.exp(-2/mu)
+                for ix, xx in enumerate(x):
+                    if ix > mat_bound:
+                        self.angular_flux[ang, ix] = 0.5 * (0.15 * (1 - 1/11 * xx ))
+                
+
+
  
 class boundary_class:
     def __init__(self, left_edge, right_edge, strength = [1,0]):

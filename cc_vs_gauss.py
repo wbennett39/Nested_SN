@@ -13,7 +13,7 @@ import time
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
-    N_cells_list = np.array([40])
+    N_cells_list = np.array([20])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
     N_ang_bench = 16
@@ -22,7 +22,7 @@ def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
     plt.ion()
     for k, cells, in enumerate(N_cells_list):
         dx = 5/cells
-        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
+        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = 'source1', IC = 'larsen', source = 'off',
                 opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = tol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [2.0,0.0], maxits = 1e8, input_source = np.array([0.0]), quad_type='gauss')
         reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
         print('RR', reaction_rate_bench, 'dx = ', dx)
@@ -65,8 +65,8 @@ def perform_convergence(problem = '3_mat', nruns = 1):
         opacity = 'larsen'
         x1 = -5.5
         x2 = -4.5
-        etol = 5e-13
-        N_cells = 1000
+        etol = 5e-11
+        N_cells = 40
         right_edge = 'reflecting'
         strength = 2.0
     
@@ -98,7 +98,7 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     timelist_GLeg = np.zeros(N_ang_list.size)
     # opacity = '3_material'
     #prime numba
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 50, N_ang = 16, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
+    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = 10, N_ang = 16, left_edge = 'source1', right_edge = right_edge, IC = 'cold', source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
 
@@ -110,7 +110,15 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     bench_time = tend - tstart
     print(reaction_rate_bench, 'bench reaction')
     print(Jb[1], 'bench J+')
+    plt.figure('phi')
+    plt.plot(cell_centersb, phib, 'k-')
+    plt.xlabel(r'$x$ [cm]', fontsize = 16)
+    plt.ylabel(r'$\phi$', fontsize = 16)
+    show(f'scalar_flux_{problem}')
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
+        print('########################################')
+        print(ang, ' angles')
+        print('########################################')
 
         for nn in range(nruns):
             tstart = time.time()
@@ -243,11 +251,7 @@ def perform_convergence(problem = '3_mat', nruns = 1):
 
 
 
-    plt.figure('phi')
-    plt.plot(cell_centersb, phib, 'k-')
-    plt.xlabel(r'$x$ [cm]', fontsize = 16)
-    plt.ylabel(r'$\phi$', fontsize = 16)
-    show(f'scalar_flux_{problem}')
+    
     # plt.plot(cell_centersb, np.abs(phicc - phib), '--')
 
     plt.show()
@@ -284,7 +288,8 @@ def perform_convergence(problem = '3_mat', nruns = 1):
     plt.figure('times')
     plt.plot(N_ang_list, timelist_CC / timelist_GLeg, 'b-^', mfc = 'none')
     plt.xlabel(r'$S_N$ order', fontsize = 16)
-    plt.ylabel('FOM')
+    plt.ylabel(r'$ t_{\mathrm{Clenshaw-Curtis}}/ t_{\mathrm{Gauss-Legendre}}$', fontsize = 16)
+    plt.ylim(0.79, 1.31)
     show(f'time_compare_{problem}')
 
 
@@ -365,14 +370,16 @@ def nested_plot(mkrs=8, width = 5, height = 5):
     plt.show()
 
 def check_quadratures():
-     N_ang_list = np.array([2,6,16,46, 136, 406])
+     N_ang_list = np.array([2,3,6,16,46, 136, 406])
      for N in N_ang_list:
-        # mus, ws = cc_quad(N)
-        mus, ws = quadrature(N, 'gauss_legendre')
+        mus, ws = cc_quad(N)
+        # mus, ws = quadrature(N, 'gauss_lobatto')
         ws = ws/2
         print(np.sum(ws), 'zeroth')
         print(np.sum(ws*mus), 'first')
         print(np.sum(ws*mus**2), 'second')
+        print(np.sum(ws*mus**3), 'third')
+        print(np.sum(ws*mus**4), 'foruth')
 
 
 

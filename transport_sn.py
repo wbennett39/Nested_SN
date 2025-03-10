@@ -22,20 +22,20 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     sigma_s = sigma_ob.sigma_s
     sigma_t = sigma_ob.sigma_t
 
-
-    # Initialize angular flux
-    IC_ob = IC_class(N_ang, N_cells, IC, mesh)
-    IC_ob.make_IC()
-    angular_flux_IC = IC_ob.angular_flux
-    # Initialize scalar flux class
-    phi_ob = scalar_flux_class(N_ang, N_cells, mesh, False, quad_type= quad_type)
-    # Initialize angles
     if quad_type == 'cc':
         mus, ws = cc_quad(N_ang)
     elif quad_type == 'gauss':
         mus, ws = quadrature(N_ang, 'gauss_lobatto' )
     elif quad_type == 'gauss_legendre':
         mus, ws = quadrature(N_ang, 'gauss_legendre' )
+    # Initialize angular flux
+    IC_ob = IC_class(N_ang, N_cells, IC, mesh, mus)
+    IC_ob.make_IC()
+    angular_flux_IC = IC_ob.angular_flux
+    # Initialize scalar flux class
+    phi_ob = scalar_flux_class(N_ang, N_cells, mesh, False, quad_type= quad_type)
+    # Initialize angles
+   
 
     # print(mus, 'mus')
     # print(mus, 'mus')
