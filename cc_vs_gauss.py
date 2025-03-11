@@ -13,11 +13,11 @@ import time
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
-    N_cells_list = np.array([20])
+    N_cells_list = np.array([10, 1100])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
     N_ang_bench = 16
-    tol = 1e-10
+    tol = 1e-13
     # opacity = '3_material'
     plt.ion()
     for k, cells, in enumerate(N_cells_list):
@@ -37,7 +37,7 @@ def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
         plt.xlabel(r'$x$ [cm]', fontsize = 16)
         plt.ylabel(r'$\phi$', fontsize = 16)
         plt.ylim(0.0, 0.14)
-        show(f'scalar_flux_larsen')
+        show(f'scalar_flux_larsen2')
     plt.figure('converge')
     plt.loglog(N_cells_list, np.abs(reaction_list))
     plt.show()
@@ -62,17 +62,22 @@ def perform_convergence(problem = '3_mat', nruns = 3):
         strength = 1.0
         IC = 'cold'
         N_ang_bench = 1024
+        ya = 0.8
     elif problem == 'larsen':
         LL = 11.0
         opacity = 'larsen'
         IC = 'larsen'
         x1 = -5.5
         x2 = -4.5
-        etol = 5e-11
-        N_cells = 200
+        etol = 1e-13
+        N_cells = 1100
         right_edge = 'source1'
         strength = 2.0
         N_ang_bench = 1024
+        ya = 0
+        yb = 0.14
+        xa = -5.5
+        xb = 5.5
     
     print(LL/N_cells, 'dx')
     # N_cells = 1500
@@ -121,8 +126,10 @@ def perform_convergence(problem = '3_mat', nruns = 3):
     plt.plot(cell_centersb, phib, 'k-')
     plt.xlabel(r'$x$ [cm]', fontsize = 16)
     plt.ylabel(r'$\phi$', fontsize = 16)
-    plt.ylim(0.0, 0.14)
+    plt.ylim(ya, yb)
+    plt.xlim(xa, xb)
     show(f'scalar_flux_{problem}')
+    plt.close()
 
     for iang, ang in tqdm.tqdm(enumerate(N_ang_list)):
         print('########################################')
@@ -298,7 +305,7 @@ def perform_convergence(problem = '3_mat', nruns = 3):
     plt.figure('times')
     plt.plot(N_ang_list[1:], timelist_CC[1:] / timelist_GLeg[1:], 'b-^', mfc = 'none')
     plt.xlabel(r'$S_N$ order', fontsize = 16)
-    plt.ylabel(r'$ t_{\mathrm{Clenshaw-Curtis}}/ t_{\mathrm{Gauss-Legendre}}$', fontsize = 16)
+    plt.ylabel('Ratio of computation time', fontsize = 16)
     # plt.ylim(0.79, 1.31)
     show(f'time_compare_{problem}')
 

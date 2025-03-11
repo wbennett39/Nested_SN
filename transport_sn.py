@@ -102,6 +102,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
             count = 0
         if max_err <= tol or iteration >= maxits:
+            print(iteration, 'iterations required to converge')
             tolerance_achieved = True
             if wynn_epsilon == True and laststep == True:
                 phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
