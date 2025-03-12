@@ -13,7 +13,7 @@ import time
 def RMSE(l1,l2):
     return np.sqrt(np.mean((l1-l2)**2))
 def spatial_converge(opacity = 'larsen', x1 = -5.5, x2 = -4.5, LL = 11):
-    N_cells_list = np.array([10, 1100])
+    N_cells_list = np.array([10, 4100])
     reaction_list = np.zeros(N_cells_list.size)
     J_list = np.zeros(N_cells_list.size)
     N_ang_bench = 16
@@ -70,7 +70,7 @@ def perform_convergence(problem = '3_mat', nruns = 3):
         x1 = -5.5
         x2 = -4.5
         etol = 1e-13
-        N_cells = 1100
+        N_cells = 2200
         right_edge = 'source1'
         strength = 2.0
         N_ang_bench = 1024

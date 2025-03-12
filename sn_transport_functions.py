@@ -46,6 +46,7 @@ class scalar_flux_class:
         if quad_type == 'cc':
             print('Clenshaw-Curtis quadrature')
             self.mus, self.ws = cc_quad(self.N_ang)
+            print(self.mus)
             
         elif quad_type == 'gauss':
             print('Gaussian quadrature')
