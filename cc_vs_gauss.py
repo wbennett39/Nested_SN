@@ -63,7 +63,10 @@ def perform_convergence(problem = '3_mat', nruns = 3):
         strength = 1.0
         IC = 'cold'
         N_ang_bench = 1024
-        ya = 0.8
+        yb = 0.8
+        ya = 0.0
+        xa = -2.5
+        xb = 2.5
     elif problem == 'larsen':
         LL = 11.0
         opacity = 'larsen'
