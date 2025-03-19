@@ -1,0 +1,1004 @@
+ERROR: Unable to locate a modulefile for 'python3'
+/afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:486: IntegrationWarning: The occurrence of roundoff error is detected, which prevents 
+  the requested tolerance from being achieved.  The error may be 
+  underestimated.
+  result = integrate.quad(interp_phi, x1, x2)[0]
+0.01 dx
+6 angles
+Gaussian quadrature
+100000  iteration 1.1532199925556874e-07  maximum error -1.9999999999999998 max err x location
+108735 iterations required to converge
+primed
+1024 angles
+Gaussian quadrature
+100000  iteration 8.556691123706717e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6236820251102078e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.777662436649681e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.791878012444517e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0030826714266823e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.1009010503503234e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.506545888041444e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0845069564613397e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.811293972759259e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.626580867890141e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0529607447936655e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.919444686000361e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1029458729948658e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5148023113642495e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0911482828390717e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.859803086152084e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.661604518536478e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0781877874707106e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.9376168164674255e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.116036512678221e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5242307416230005e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.09793979463646e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.908729227068534e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.6968318951078345e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.103578588043888e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9558994141254402e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.129213472201741e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5337175973684225e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1047829318044933e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.957801084756966e-13  maximum error 0.4818511796733218 max err x location
+3100000  iteration 5.73235903189584e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.1291969843371135e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 2.9742874829707944e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.142591659648474e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5432100042289676e-13  maximum error 0.4637023593466427 max err x location
+3600000  iteration 1.1117495812840161e-13  maximum error 0.5000000000000004 max err x location
+3632283 iterations required to converge
+0.49629229790753915 bench reaction
+4.5274180626171125e-05 bench J+
+0it [00:00, ?it/s]1it [7:14:53, 26093.96s/it]########################################
+2  angles
+########################################
+2 angles
+Clenshaw-Curtis quadrature
+100000  iteration 3.130652115879151e-07  maximum error -0.4074410163339377 max err x location
+200000  iteration 1.1172449582153021e-07  maximum error 0.44555353901996364 max err x location
+300000  iteration 4.179847462593145e-08  maximum error 0.5000000000000004 max err x location
+400000  iteration 1.5640050476939393e-08  maximum error 0.5000000000000004 max err x location
+500000  iteration 5.852155621210997e-09  maximum error 0.5000000000000004 max err x location
+600000  iteration 2.1897451907282317e-09  maximum error 0.5000000000000004 max err x location
+700000  iteration 8.193534739575625e-10  maximum error 0.5000000000000004 max err x location
+800000  iteration 3.065836751137141e-10  maximum error 0.5000000000000004 max err x location
+900000  iteration 1.1471673611040956e-10  maximum error 0.5000000000000004 max err x location
+1000000  iteration 4.2924441778779965e-11  maximum error 0.5000000000000004 max err x location
+1100000  iteration 1.6061374452647215e-11  maximum error 0.5000000000000004 max err x location
+1200000  iteration 6.009803765749666e-12  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.2487567363782546e-12  maximum error 0.5000000000000004 max err x location
+1400000  iteration 8.414102747877905e-13  maximum error 0.4818511796733218 max err x location
+1500000  iteration 3.148592497836944e-13  maximum error 0.5181488203266791 max err x location
+1600000  iteration 1.177946629127291e-13  maximum error 0.427404718693285 max err x location
+1616679 iterations required to converge
+Clenshaw-Curtis quadrature
+2 angles
+Gaussian quadrature
+100000  iteration 3.130652115879151e-07  maximum error -0.4074410163339377 max err x location
+200000  iteration 1.1172449582153021e-07  maximum error 0.44555353901996364 max err x location
+300000  iteration 4.179847462593145e-08  maximum error 0.5000000000000004 max err x location
+400000  iteration 1.5640050476939393e-08  maximum error 0.5000000000000004 max err x location
+500000  iteration 5.852155621210997e-09  maximum error 0.5000000000000004 max err x location
+600000  iteration 2.1897451907282317e-09  maximum error 0.5000000000000004 max err x location
+700000  iteration 8.193534739575625e-10  maximum error 0.5000000000000004 max err x location
+800000  iteration 3.065836751137141e-10  maximum error 0.5000000000000004 max err x location
+900000  iteration 1.1471673611040956e-10  maximum error 0.5000000000000004 max err x location
+1000000  iteration 4.2924441778779965e-11  maximum error 0.5000000000000004 max err x location
+1100000  iteration 1.6061374452647215e-11  maximum error 0.5000000000000004 max err x location
+1200000  iteration 6.009803765749666e-12  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.2487567363782546e-12  maximum error 0.5000000000000004 max err x location
+1400000  iteration 8.414102747877905e-13  maximum error 0.4818511796733218 max err x location
+1500000  iteration 3.148592497836944e-13  maximum error 0.5181488203266791 max err x location
+1600000  iteration 1.177946629127291e-13  maximum error 0.427404718693285 max err x location
+1616679 iterations required to converge
+2 angles
+Gauss-Legendre quadrature
+100000  iteration 1.1208735545276127e-07  maximum error -1.6415607985480942 max err x location
+200000  iteration 8.603793943962046e-08  maximum error 0.35480943738657045 max err x location
+300000  iteration 6.283173453747182e-08  maximum error 0.44555353901996364 max err x location
+400000  iteration 4.5294951490915114e-08  maximum error 0.4818511796733218 max err x location
+500000  iteration 3.2623321884195366e-08  maximum error 0.5000000000000004 max err x location
+600000  iteration 2.349536934453944e-08  maximum error 0.5000000000000004 max err x location
+700000  iteration 1.6921316417506382e-08  maximum error 0.5000000000000004 max err x location
+800000  iteration 1.2186692564808421e-08  maximum error 0.5000000000000004 max err x location
+900000  iteration 8.776827292722444e-09  maximum error 0.5000000000000004 max err x location
+1000000  iteration 6.3210503359334425e-09  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.552405563629236e-09  maximum error 0.5000000000000004 max err x location
+1200000  iteration 3.2786317619160066e-09  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.3612628727298635e-09  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.7005759578303525e-09  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.2247508007767749e-09  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.820626382077812e-10  maximum error 0.5000000000000004 max err x location
+1700000  iteration 6.352594353331575e-10  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.5751234745150526e-10  maximum error 0.5000000000000004 max err x location
+1900000  iteration 3.294993167202165e-10  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.373046342762919e-10  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.7090624054860726e-10  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.2308626340384876e-10  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.864643741279821e-11  maximum error 0.5000000000000004 max err x location
+2400000  iteration 6.384295869743539e-11  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.597955349794347e-11  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.3114358477526196e-11  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.3848888142108393e-11  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.71759134692806e-11  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.2370056368116167e-11  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.90888057769601e-12  maximum error 0.5000000000000004 max err x location
+3100000  iteration 6.416159270550281e-12  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.6209008841557875e-12  maximum error 0.5000000000000004 max err x location
+3300000  iteration 3.327962905252946e-12  maximum error 0.5000000000000004 max err x location
+3400000  iteration 2.3967910989242114e-12  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.7261608808993856e-12  maximum error 0.5000000000000004 max err x location
+3600000  iteration 1.2431861096118269e-12  maximum error 0.5000000000000004 max err x location
+3700000  iteration 8.953324193150536e-13  maximum error 0.5000000000000004 max err x location
+3800000  iteration 6.448175327022909e-13  maximum error 0.5000000000000004 max err x location
+3900000  iteration 4.643924134128952e-13  maximum error 0.4818511796733218 max err x location
+4000000  iteration 3.344546861683284e-13  maximum error 0.4818511796733218 max err x location
+4100000  iteration 2.4087676298023553e-13  maximum error 0.5000000000000004 max err x location
+4200000  iteration 1.7347928649158462e-13  maximum error 0.4818511796733218 max err x location
+4300000  iteration 1.2493478473984965e-13  maximum error 0.4637023593466427 max err x location
+4367831 iterations required to converge
+[0.97959919 0.         0.         0.         0.         0.        ] cc reaction rate
+########################################
+6  angles
+########################################
+6 angles
+Clenshaw-Curtis quadrature
+100000  iteration 8.558371327599401e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6290491055014353e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.835458718299162e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.843026625567237e-09  maximum error 1.9519056261343013 max err x location
+500000  iteration 3.0442204798641903e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.131461812604485e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.528658352678569e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.100430899181326e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 7.925885364690188e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.709033384926343e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.112287316226926e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9621312347405393e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1336596378596084e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5369015782251694e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1070490357756313e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.974210181060926e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.74392061691853e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.137418185834463e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.980232727267662e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.146699484839587e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.546293648679864e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.113814596109819e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.022943420726847e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.779016154505712e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.162725719680793e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9984487115441993e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1598139943179717e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.555741646619424e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1206313654810174e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.072015278415279e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.814376757840023e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.188038804642247e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 3.0167535136627066e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.1729840149475876e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5652756868433926e-13  maximum error 0.5000000000000004 max err x location
+3600000  iteration 1.1274314815068465e-13  maximum error 0.44555353901996364 max err x location
+3636581 iterations required to converge
+Clenshaw-Curtis quadrature
+6 angles
+Gaussian quadrature
+100000  iteration 8.560100919763336e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6349751047760606e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.898114348982912e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.898282758569739e-09  maximum error 1.9519056261343013 max err x location
+500000  iteration 3.088478951751572e-09  maximum error 1.2622504537205086 max err x location
+600000  iteration 2.164323220643638e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.552446046715339e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.1175834147003627e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 8.049466648785142e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.79806827549767e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.176431422919791e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 3.008343435473293e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1669527283663115e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5608871140049274e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1243293795981657e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.098703652148487e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.833612759520435e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.2020345536464276e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 3.026785766468976e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1802365468559515e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5704562650320497e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1312215053571606e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.148356989146066e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.8693883087101995e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.227798666711635e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.0453417565468044e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.19360640763e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5800971642221384e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.138159011482287e-12  maximum error 0.4818511796733218 max err x location
+3000000  iteration 8.19830314746639e-13  maximum error 0.4818511796733218 max err x location
+3100000  iteration 5.905415045859286e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.253680740973209e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 3.064076770087354e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.206984595076733e-13  maximum error 0.4637023593466427 max err x location
+3500000  iteration 1.5898393712632242e-13  maximum error 0.4637023593466427 max err x location
+3600000  iteration 1.145195049900849e-13  maximum error 0.4818511796733218 max err x location
+3641326 iterations required to converge
+6 angles
+Gauss-Legendre quadrature
+100000  iteration 8.562543284823532e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6433622173083204e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.987158419710873e-09  maximum error 2.496370235934665 max err x location
+400000  iteration 4.976609666029752e-09  maximum error 1.9337568058076227 max err x location
+500000  iteration 3.151133735890266e-09  maximum error 1.24410163339383 max err x location
+600000  iteration 2.2108064268167027e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.5861021246399432e-09  maximum error 0.6088929219600732 max err x location
+800000  iteration 1.1418482548375408e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 8.224300129811013e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.924033902315884e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.2671868816235303e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 3.0737302980643477e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.2140625444144746e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5948285747580115e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1487832907164375e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.274890495041376e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.960551496819733e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.293490563078706e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 3.092677502980479e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.227711071167704e-11 2it [17:48:54, 33121.08s/it]/afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:171: RuntimeWarning: divide by zero encountered in scalar divide
+  tableau[r,w] = tableau[r-1,w-2] + 1/(tableau[r,w-1] - tableau[r-1,w-1])
+ maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.6046594608631892e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1558656809462775e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.325895528571436e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.9972860011470175e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.319961055543331e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.1117469712071966e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.2414431422035364e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.6145557113489417e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.163000251658275e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.377326610187197e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 6.034339694593882e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.346661919285566e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 3.1309677073210196e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.2552792966479274e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.6245338407827603e-13  maximum error 0.4818511796733218 max err x location
+3600000  iteration 1.170175067954915e-13  maximum error 0.4818511796733218 max err x location
+3647905 iterations required to converge
+[0.97959919 0.5133262  0.         0.         0.         0.        ] cc reaction rate
+########################################
+16  angles
+########################################
+16 angles
+Clenshaw-Curtis quadrature
+100000  iteration 8.559313363631915e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6325539012606036e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.87211973280111e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.875125726722107e-09  maximum error 1.9519056261343013 max err x location
+500000  iteration 3.0698589018052225e-09  maximum error 1.2622504537205086 max err x location
+600000  iteration 2.1505063702020877e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.5424613947212507e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.1103979402626862e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 7.997801310111186e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.760921323316737e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.149723897839408e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9891414343730105e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1531472438329757e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5509613038311443e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1171930047737533e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.047397470622997e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.796724211748483e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.175515488924475e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 3.0077190737998194e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.166529455838173e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.56060026013094e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1241368946812713e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.09741163010358e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.832750948897569e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.201472503240211e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.0264124539769455e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.179992297790534e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5702994460298214e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.131136850851533e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.147649221967868e-13  maximum error 0.4818511796733218 max err x location
+3100000  iteration 5.869055241802812e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.227590499894518e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 3.045202978668726e-13  maximum error 0.5000000000000004 max err x location
+3400000  iteration 2.1936619187812312e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.580124919797754e-13  maximum error 0.5000000000000004 max err x location
+3600000  iteration 1.1381173781188636e-13  maximum error 0.4818511796733218 max err x location
+3639461 iterations required to converge
+Clenshaw-Curtis quadrature
+16 angles
+Gaussian quadrature
+100000  iteration 8.559134092450682e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6319473753200207e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.86569571870266e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.86945379851722e-09  maximum error 1.9519056261343013 max err x location
+500000  iteration 3.0653128785251837e-09  maximum error 1.2622504537205086 max err x location
+600000  iteration 2.1471318611965273e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.5400191122338924e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.1086372653235088e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 7.98511867738938e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.751785991936487e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.143143883528211e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.984402031058764e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1497334468101315e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5485024373873557e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1154220602715981e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.034642395848834e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.78753711621971e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.1688957841401475e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 3.002952053687835e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.163094703355739e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5581272383435874e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1223563745055287e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.084574676381351e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.823508342217565e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.194797287304652e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.0216246171832495e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.176536728626388e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5678014442244148e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1293466162243249e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.1347428793066e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.859757123971576e-13  maximum error /afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:435: RankWarning: Polyfit may be poorly conditioned
+  a, b = np.polyfit(xnew, ynew,1)
+/afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:453: RankWarning: Polyfit may be poorly conditioned
+  a, b = np.polyfit(xnew, ynew,1)
+/afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:435: RankWarning: Polyfit may be poorly conditioned
+  a, b = np.polyfit(xnew, ynew,1)
+/afs/crc.nd.edu/user/w/wbennet2/Private/Nested_SN/sn_transport_functions.py:453: RankWarning: Polyfit may be poorly conditioned
+  a, b = np.polyfit(xnew, ynew,1)
+3it [28:39:37, 35825.22s/it]0.5000000000000004 max err x location
+3200000  iteration 4.220929161746767e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 3.040345752935991e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.1900536939511994e-13  maximum error 0.4637023593466427 max err x location
+3500000  iteration 1.5776269179923474e-13  maximum error 0.5000000000000004 max err x location
+3600000  iteration 1.1364520435819259e-13  maximum error 0.4818511796733218 max err x location
+3638979 iterations required to converge
+16 angles
+Gauss-Legendre quadrature
+100000  iteration 8.558805995872998e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.630837364625549e-08  maximum error 2.8049001814882035 max err x location
+300000  iteration 9.85393899116671e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.859073428342686e-09  maximum error 1.9519056261343013 max err x location
+500000  iteration 3.0569930406509904e-09  maximum error 1.2622504537205086 max err x location
+600000  iteration 2.1409560652108084e-09  maximum error 0.8085299455535391 max err x location
+700000  iteration 1.5355494098479028e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.1054149817724124e-09  maximum error 0.5362976406533577 max err x location
+900000  iteration 7.961907522169298e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.735067143408656e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.13110143315798e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9757279973452455e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1434858055169315e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5440022871349157e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.1121806253733268e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 8.011294405640967e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.7707200129542e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.156783250941487e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.994227088493062e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1568122288151415e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.553601691739459e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1190937065919115e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 8.061107337198337e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.806605196667647e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.182640345185007e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 3.012839977500903e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1702084573860247e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5632495298234517e-12  maximum error 0.4818511796733218 max err x location
+2900000  iteration 1.126043702726065e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 8.111289417911394e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.842687444967964e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.208577930597812e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 3.03146396873899e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.183808689437683e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5729084701376905e-13  maximum error 0.44555353901996364 max err x location
+3600000  iteration 1.1332601523861285e-13  maximum error 0.5181488203266791 max err x location
+3638104 iterations required to converge
+[0.97959919 0.5133262  0.49812512 0.         0.         0.        ] cc reaction rate
+[0.         0.25470876 0.         0.         0.         0.        ]
+########################################
+46  angles
+########################################
+46 angles
+Clenshaw-Curtis quadrature
+100000  iteration 8.55694443843702e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.624576077997487e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.787242363779036e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.800315867026228e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0098582792792428e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.1059354954333642e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5101918882098886e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0871352013053226e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.830227854999094e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.640218708746758e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.062783998115549e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.926519721002663e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1080420742336514e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5184731250172945e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0937924177500946e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.878846186581967e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.675322711784503e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0880687723898745e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.9447347338340535e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1211588041580853e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5279222331798792e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1006015543379988e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.92786669645551e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.71064029397661e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.113501206326475e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9630742304220803e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.134376009266248e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5374507222887246e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1074474670635936e-12  maximum error 0.4818511796733218 max err x location
+3000000  iteration 7.977368765565984e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.746098041825576e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.13918899155874e-13  maximum error 0.5181488203266791 max err x location
+3300000  iteration 2.981503932630858e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.1477264411373653e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.5472345626932338e-13  maximum error 0.5181488203266791 max err x location
+3600000  iteration 1.114525138845579e-13  maximum error 0.5000000000000004 max err x location
+3633021 iterations required to converge
+Clenshaw-Curtis quadrature
+46 angles
+Gaussian quadrature
+100000  iteration 8.556938554948879e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.624556338232109e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.787031587937811e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.800130341819919e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0097093359215954e-09 4it [40:18:36, 38239.08s/it] maximum error 1.2803992740471872 max err x location
+600000  iteration 2.105824820075597e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5101117301075107e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0870774419524665e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.829811660142738e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.639918809752231e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.062567782181503e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9263647061128495e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1079300804860424e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.518392217514375e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0937341310413018e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.878428465168952e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.6750201760102925e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.087849503342511e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.944579302610606e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1210491696344036e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.527840354231813e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1005391042928636e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.927464240609083e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.710348860432646e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.11327916172155e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9629215747561943e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1342649869637853e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5373535777740699e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1073919559123624e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.976813654053672e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.745959263947498e-13  maximum error 0.5181488203266791 max err x location
+3200000  iteration 4.1389114358025836e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 2.981503932630858e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.1475876632592872e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.5470957848151556e-13  maximum error 0.4818511796733218 max err x location
+3600000  iteration 1.1143863609675009e-13  maximum error 0.5181488203266791 max err x location
+3632994 iterations required to converge
+46 angles
+Gauss-Legendre quadrature
+100000  iteration 8.556927050262786e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.624517737859211e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.786619369067662e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.7997675417521535e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.009418068911085e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.105608409852522e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5099550360053726e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0869644767597109e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.82899772788781e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.639332611995229e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0621456198763894e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.926060366226224e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.107711088994435e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5182347046227562e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0936203331812777e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.877609675688291e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.6744303700284604e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.087424843035592e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.9442712157212725e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1208285128082593e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5276835352295848e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.1004266942116203e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.926617695552807e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.7097659933447176e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.112862828087316e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9626023856366146e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1340290645710525e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5371731665325683e-12  maximum error 0.4818511796733218 max err x location
+2900000  iteration 1.1072809336098999e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.975980986785203e-13  maximum error 0.4818511796733218 max err x location
+3100000  iteration 5.745404152435185e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.1386338800464273e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 2.9809488211185453e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.147310107503131e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.5469570069370775e-13  maximum error 0.5181488203266791 max err x location
+3600000  iteration 1.1142475830894227e-13  maximum error 0.4637023593466427 max err x location
+3632969 iterations required to converge
+[0.97959919 0.5133262  0.49812512 0.49648981 0.         0.        ] cc reaction rate
+[0.         0.25470876 0.00069513 0.         0.         0.        ]
+########################################
+136  angles
+########################################
+136 angles
+Clenshaw-Curtis quadrature
+100000  iteration 8.556704365197954e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6237711767129746e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.778646156699544e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.7927503493694346e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0037844642172296e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.1014226747606557e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.506923696936724e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.084779308047068e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.813256014399528e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.627994043022611e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0539785417514906e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9201778495302477e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.103473784043075e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5151825627501836e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.091422230370398e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.861775119799574e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.6630256040079985e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0792119682109274e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.938355114778801e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1165652563936987e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5246137685664962e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0982159626138355e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.910713750725051e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.698275185039847e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.104605544341666e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.956648814667062e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1297408281384378e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5341061754270413e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1050466097728417e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.960021530806216e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.733746810676621e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.1301684294836605e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 2.974981372361185e-13  maximum error 0.4637023593466427 max err x location
+3400000  iteration 2.1430079932827084e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5437651157412802e-13  maximum error 0.5000000000000004 max err x location
+3600000  iteration 1.1120271370401724e-13  maximum error 0.4818511796733218 max err x location
+3632355 iterations required to converge
+Clenshaw-Curtis quadrature
+136 angles
+Gaussian quadrature
+100000  iteration 8.556704152173911e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6237704571496767e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.778638468405099e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.792743577008984e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.003779024124409e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.1014186363244036e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5069207826012843e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.084777212501109e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.813240887610817e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.627983079570242e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0539707701903183e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9201721596372465e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1034697594846108e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.515179648414744e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0914201487022268e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.861759854232986e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.663014501777752e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0792050293170234e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.938348175884897e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1165624808361372e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5246109930089347e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0982131870562739e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.910699872937244e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.698261307252039e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.104605544341666e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9566349368792544e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.12972695035063e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5341061754270413e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.1050466097728417e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.960021530806216e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.733746810676621e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.1301684294836605e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 2.975120150239263e-13  maximum error 0.5000000000000004 max err x location
+3400000  iteration 2.1431467711607866e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5437651157412802e-13  maximum error 0.5181488203266791 max err x location
+3600000  iteration 1.1120271370401724e-13  maximum error 0.4818511796733218 max err x location
+3632362 iterations required to converge
+136 angles
+Gauss-Legendre quadrature
+100000  iteration 8.55670372057471e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6237690201047492e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.778623119571783e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.792730073921447e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.003768185572131e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.101410587207475e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.506914953930405e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0847730075314033e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.813210495255518e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.627961152665506e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0539550882900954e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.920160779851244e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1034617103676823e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5151738197438647e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0914158465880064e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.86173071087859e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.66299229731726e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.079188375971654e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.938337073654651e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1165555419422333e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5246040541150307e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0982104114987123e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.91065823957382e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.698233551676424e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.1045916665538584e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9566210590914466e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.12972695035063e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5340922976392335e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 5it [54:13:53, 42522.25s/it]1.1050466097728417e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.959882752928138e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.733746810676621e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.1301684294836605e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 2.974981372361185e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.1430079932827084e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.543626337863202e-13  maximum error 0.4818511796733218 max err x location
+3600000  iteration 1.1118883591620943e-13  maximum error 0.4818511796733218 max err x location
+3632354 iterations required to converge
+[0.97959919 0.5133262  0.49812512 0.49648981 0.49631122 0.        ] cc reaction rate
+[0.00000000e+00 2.54708758e-01 6.95131718e-04 7.98654127e-05
+ 0.00000000e+00 0.00000000e+00]
+########################################
+406  angles
+########################################
+406 angles
+Clenshaw-Curtis quadrature
+100000  iteration 8.556683521454556e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6236863723272386e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.777729598203777e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.791941496384844e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.003134609047553e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.100939783256095e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5065739489283914e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0845272041537513e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.811439967086997e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.626685783965968e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.053036517515096e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9194990869285675e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.102985147134362e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5148304832734993e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0911685444092711e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.859948802924066e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.6617099897238177e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0782641153036536e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.937672327618657e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.116075370484083e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5242612727561777e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0979606113181717e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.90888188273442e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.696956795198105e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.103647976982927e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9559410474888637e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1292551055651643e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5337453529440381e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.104796809592301e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.958078640513122e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.73235903189584e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.1293357622151916e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 2.9742874829707944e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.142591659648474e-13  maximum error 0.4818511796733218 max err x location
+3500000  iteration 1.5433487821070457e-13  maximum error 0.4818511796733218 max err x location
+3600000  iteration 1.111610803405938e-13  maximum error 0.44555353901996364 max err x location
+3632279 iterations required to converge
+Clenshaw-Curtis quadrature
+406 angles
+Gaussian quadrature
+100000  iteration 8.556683531862896e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.623686353592225e-08  maximum error 2.823049001814882 max err x location
+300000  iteration 9.777729369220278e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.791941288218027e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0031344425140993e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.1009396583560047e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5065738656616645e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0845271347648122e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.811439411975485e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.62668564518809e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.05303623995934e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9194989481506894e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1029850083564838e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5148303444956213e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.0911685444092711e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.859948802924066e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.661708601945037e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0782655030824344e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.937670939839876e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.1160767582628637e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.524259884977397e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0979592235393909e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.908868004946612e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.696970672985913e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.103661854770735e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9559549252766715e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1292551055651643e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5337453529440381e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.104796809592301e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.9582174183912e-13  maximum error 0.5000000000000004 max err x location
+3100000  iteration 5.732497809773918e-13  maximum error 0.4818511796733218 max err x location
+3200000  iteration 4.1291969843371135e-13  maximum error 0.4818511796733218 max err x location
+3300000  iteration 2.9744262608488725e-13  maximum error 0.5000000000000004 max err x location
+3400000  iteration 2.1424528817703958e-13  maximum error 0.4637023593466427 max err x location
+3500000  iteration 1.5433487821070457e-13  maximum error 0.4818511796733218 max err x location
+3600000  iteration 1.111610803405938e-13  maximum error 0.427404718693285 max err x location
+3632284 iterations required to converge
+406 angles
+Gauss-Legendre quadrature
+100000  iteration 8.5566835512918e-08  maximum error 3.095281306715064 max err x location
+200000  iteration 2.6236863168160873e-08  maximum error 6it [74:48:39, 53253.92s/it]6it [74:48:39, 44886.56s/it]
+2.823049001814882 max err x location
+300000  iteration 9.777728904314387e-09  maximum error 2.5145190562613435 max err x location
+400000  iteration 4.791940864945499e-09  maximum error 1.9700544464609804 max err x location
+500000  iteration 3.0031340886305102e-09  maximum error 1.2803992740471872 max err x location
+600000  iteration 2.100939408555824e-09  maximum error 0.8266787658802177 max err x location
+700000  iteration 1.5065736991282108e-09  maximum error 0.6270417422867518 max err x location
+800000  iteration 1.0845269959869341e-09  maximum error 0.5544464609800364 max err x location
+900000  iteration 7.811438440530338e-10  maximum error 0.5181488203266791 max err x location
+1000000  iteration 5.626684951298699e-10  maximum error 0.5000000000000004 max err x location
+1100000  iteration 4.0530356848478277e-10  maximum error 0.5000000000000004 max err x location
+1200000  iteration 2.9194986705949333e-10  maximum error 0.5000000000000004 max err x location
+1300000  iteration 2.1029847308007277e-10  maximum error 0.5000000000000004 max err x location
+1400000  iteration 1.5148302057177432e-10  maximum error 0.5000000000000004 max err x location
+1500000  iteration 1.091168405631393e-10  maximum error 0.5000000000000004 max err x location
+1600000  iteration 7.859947415145285e-11  maximum error 0.5000000000000004 max err x location
+1700000  iteration 5.661707214166256e-11  maximum error 0.5000000000000004 max err x location
+1800000  iteration 4.0782641153036536e-11  maximum error 0.5000000000000004 max err x location
+1900000  iteration 2.937669552061095e-11  maximum error 0.5000000000000004 max err x location
+2000000  iteration 2.116075370484083e-11  maximum error 0.5000000000000004 max err x location
+2100000  iteration 1.5242612727561777e-11  maximum error 0.5000000000000004 max err x location
+2200000  iteration 1.0979606113181717e-11  maximum error 0.5000000000000004 max err x location
+2300000  iteration 7.908868004946612e-12  maximum error 0.5000000000000004 max err x location
+2400000  iteration 5.696942917410297e-12  maximum error 0.5000000000000004 max err x location
+2500000  iteration 4.103647976982927e-12  maximum error 0.5000000000000004 max err x location
+2600000  iteration 2.9559549252766715e-12  maximum error 0.5000000000000004 max err x location
+2700000  iteration 2.1292412277773565e-12  maximum error 0.5000000000000004 max err x location
+2800000  iteration 1.5337453529440381e-12  maximum error 0.5000000000000004 max err x location
+2900000  iteration 1.104810687380109e-12  maximum error 0.5000000000000004 max err x location
+3000000  iteration 7.958078640513122e-13  maximum error 0.4818511796733218 max err x location
+3100000  iteration 5.732497809773918e-13  maximum error 0.5000000000000004 max err x location
+3200000  iteration 4.1293357622151916e-13  maximum error 0.5000000000000004 max err x location
+3300000  iteration 2.9744262608488725e-13  maximum error 0.4818511796733218 max err x location
+3400000  iteration 2.142730437526552e-13  maximum error 0.5000000000000004 max err x location
+3500000  iteration 1.5432100042289676e-13  maximum error 0.4637023593466427 max err x location
+3600000  iteration 1.1117495812840161e-13  maximum error 0.4818511796733218 max err x location
+3632278 iterations required to converge
+[0.97959919 0.5133262  0.49812512 0.49648981 0.49631122 0.49629363] cc reaction rate
+[0.00000000e+00 2.54708758e-01 6.95131718e-04 7.98654127e-05
+ 9.71554171e-06 0.00000000e+00]
+[1.25875879e-04 4.54214467e-05 4.52762874e-05 4.52741932e-05
+ 4.52741632e-05 4.52741078e-05] J tab
+[2.24855496e-04 3.41355046e-08 5.69049342e-08 5.81516874e-09
+ 6.40962085e-10 7.28343978e-11] cc err J
+[0.00000000e+00 1.48713046e-01 1.42994319e-02 2.73004348e-03
+ 5.24337370e-04 1.00882931e-04]
+  agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased: bool
+  backgroundcolor: :mpltype:`color`
+  bbox: dict with properties for `.patches.FancyBboxPatch`
+  clip_box: `~matplotlib.transforms.BboxBase` or None
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: :mpltype:`color`
+  figure: `~matplotlib.figure.Figure`
+  fontfamily or family or fontname: {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'}
+  fontproperties or font or font_properties: `.font_manager.FontProperties` or `str` or `pathlib.Path`
+  fontsize or size: float or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+  fontstretch or stretch: {a numeric value in range 0-1000, 'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'}
+  fontstyle or style: {'normal', 'italic', 'oblique'}
+  fontvariant or variant: {'normal', 'small-caps'}
+  fontweight or weight: {a numeric value in range 0-1000, 'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+  gid: str
+  horizontalalignment or ha: {'left', 'center', 'right'}
+  in_layout: bool
+  label: object
+  linespacing: float (multiple of font size)
+  math_fontfamily: str
+  mouseover: bool
+  multialignment or ma: {'left', 'right', 'center'}
+  parse_math: bool
+  path_effects: list of `.AbstractPathEffect`
+  picker: None or bool or float or callable
+  position: (float, float)
+  rasterized: bool
+  rotation: float or {'vertical', 'horizontal'}
+  rotation_mode: {None, 'default', 'anchor'}
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  text: object
+  transform: `~matplotlib.transforms.Transform`
+  transform_rotates_text: bool
+  url: str
+  usetex: bool, default: :rc:`text.usetex`
+  verticalalignment or va: {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
+  visible: bool
+  wrap: bool
+  x: float
+  y: float
+  zorder: float
+  agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased: bool
+  backgroundcolor: :mpltype:`color`
+  bbox: dict with properties for `.patches.FancyBboxPatch`
+  clip_box: `~matplotlib.transforms.BboxBase` or None
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: :mpltype:`color`
+  figure: `~matplotlib.figure.Figure`
+  fontfamily or family or fontname: {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'}
+  fontproperties or font or font_properties: `.font_manager.FontProperties` or `str` or `pathlib.Path`
+  fontsize or size: float or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+  fontstretch or stretch: {a numeric value in range 0-1000, 'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'}
+  fontstyle or style: {'normal', 'italic', 'oblique'}
+  fontvariant or variant: {'normal', 'small-caps'}
+  fontweight or weight: {a numeric value in range 0-1000, 'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+  gid: str
+  horizontalalignment or ha: {'left', 'center', 'right'}
+  in_layout: bool
+  label: object
+  linespacing: float (multiple of font size)
+  math_fontfamily: str
+  mouseover: bool
+  multialignment or ma: {'left', 'right', 'center'}
+  parse_math: bool
+  path_effects: list of `.AbstractPathEffect`
+  picker: None or bool or float or callable
+  position: (float, float)
+  rasterized: bool
+  rotation: float or {'vertical', 'horizontal'}
+  rotation_mode: {None, 'default', 'anchor'}
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  text: object
+  transform: `~matplotlib.transforms.Transform`
+  transform_rotates_text: bool
+  url: str
+  usetex: bool, default: :rc:`text.usetex`
+  verticalalignment or va: {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
+  visible: bool
+  wrap: bool
+  x: float
+  y: float
+  zorder: float
+  agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased: bool
+  backgroundcolor: :mpltype:`color`
+  bbox: dict with properties for `.patches.FancyBboxPatch`
+  clip_box: `~matplotlib.transforms.BboxBase` or None
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: :mpltype:`color`
+  figure: `~matplotlib.figure.Figure`
+  fontfamily or family or fontname: {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'}
+  fontproperties or font or font_properties: `.font_manager.FontProperties` or `str` or `pathlib.Path`
+  fontsize or size: float or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+  fontstretch or stretch: {a numeric value in range 0-1000, 'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'}
+  fontstyle or style: {'normal', 'italic', 'oblique'}
+  fontvariant or variant: {'normal', 'small-caps'}
+  fontweight or weight: {a numeric value in range 0-1000, 'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+  gid: str
+  horizontalalignment or ha: {'left', 'center', 'right'}
+  in_layout: bool
+  label: object
+  linespacing: float (multiple of font size)
+  math_fontfamily: str
+  mouseover: bool
+  multialignment or ma: {'left', 'right', 'center'}
+  parse_math: bool
+  path_effects: list of `.AbstractPathEffect`
+  picker: None or bool or float or callable
+  position: (float, float)
+  rasterized: bool
+  rotation: float or {'vertical', 'horizontal'}
+  rotation_mode: {None, 'default', 'anchor'}
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  text: object
+  transform: `~matplotlib.transforms.Transform`
+  transform_rotates_text: bool
+  url: str
+  usetex: bool, default: :rc:`text.usetex`
+  verticalalignment or va: {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
+  visible: bool
+  wrap: bool
+  x: float
+  y: float
+  zorder: float
+  agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased: bool
+  backgroundcolor: :mpltype:`color`
+  bbox: dict with properties for `.patches.FancyBboxPatch`
+  clip_box: `~matplotlib.transforms.BboxBase` or None
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: :mpltype:`color`
+  figure: `~matplotlib.figure.Figure`
+  fontfamily or family or fontname: {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'}
+  fontproperties or font or font_properties: `.font_manager.FontProperties` or `str` or `pathlib.Path`
+  fontsize or size: float or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+  fontstretch or stretch: {a numeric value in range 0-1000, 'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'}
+  fontstyle or style: {'normal', 'italic', 'oblique'}
+  fontvariant or variant: {'normal', 'small-caps'}
+  fontweight or weight: {a numeric value in range 0-1000, 'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+  gid: str
+  horizontalalignment or ha: {'left', 'center', 'right'}
+  in_layout: bool
+  label: object
+  linespacing: float (multiple of font size)
+  math_fontfamily: str
+  mouseover: bool
+  multialignment or ma: {'left', 'right', 'center'}
+  parse_math: bool
+  path_effects: list of `.AbstractPathEffect`
+  picker: None or bool or float or callable
+  position: (float, float)
+  rasterized: bool
+  rotation: float or {'vertical', 'horizontal'}
+  rotation_mode: {None, 'default', 'anchor'}
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  text: object
+  transform: `~matplotlib.transforms.Transform`
+  transform_rotates_text: bool
+  url: str
+  usetex: bool, default: :rc:`text.usetex`
+  verticalalignment or va: {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
+  visible: bool
+  wrap: bool
+  x: float
+  y: float
+  zorder: float
+  agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased: bool
+  backgroundcolor: :mpltype:`color`
+  bbox: dict with properties for `.patches.FancyBboxPatch`
+  clip_box: `~matplotlib.transforms.BboxBase` or None
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: :mpltype:`color`
+  figure: `~matplotlib.figure.Figure`
+  fontfamily or family or fontname: {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'}
+  fontproperties or font or font_properties: `.font_manager.FontProperties` or `str` or `pathlib.Path`
+  fontsize or size: float or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+  fontstretch or stretch: {a numeric value in range 0-1000, 'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'}
+  fontstyle or style: {'normal', 'italic', 'oblique'}
+  fontvariant or variant: {'normal', 'small-caps'}
+  fontweight or weight: {a numeric value in range 0-1000, 'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+  gid: str
+  horizontalalignment or ha: {'left', 'center', 'right'}
+  in_layout: bool
+  label: object
+  linespacing: float (multiple of font size)
+  math_fontfamily: str
+  mouseover: bool
+  multialignment or ma: {'left', 'right', 'center'}
+  parse_math: bool
+  path_effects: list of `.AbstractPathEffect`
+  picker: None or bool or float or callable
+  position: (float, float)
+  rasterized: bool
+  rotation: float or {'vertical', 'horizontal'}
+  rotation_mode: {None, 'default', 'anchor'}
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  text: object
+  transform: `~matplotlib.transforms.Transform`
+  transform_rotates_text: bool
+  url: str
+  usetex: bool, default: :rc:`text.usetex`
+  verticalalignment or va: {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
+  visible: bool
+  wrap: bool
+  x: float
+  y: float
+  zorder: float
