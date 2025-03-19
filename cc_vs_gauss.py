@@ -113,13 +113,13 @@ def perform_convergence(problem = '3_mat', nruns = 3):
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
     
     print('primed')
-
+    saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas )
     tstart = time.time()
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
 
-    saving('gauss_legendre', N_ang_bench, problem, N_cells, np.array([psib, phib, cell_centersb, Jb, sigmas]) )
+    saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas )
     tend = time.time()
     bench_time = tend - tstart
     print(reaction_rate_bench, 'bench reaction')
@@ -144,12 +144,12 @@ def perform_convergence(problem = '3_mat', nruns = 3):
             psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
                 opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]))
             timelist_CC[iang] += (time.time()-tstart)/nruns
-        saving('clenshaw_curtis', N_ang_bench, problem, N_cells, np.array([psicc, phicc, cell_centerscc, Jcc, tableauJcc, sigmas]) )
+        saving('clenshaw_curtis', N_ang_bench, problem, N_cells, psicc, phicc, cell_centerscc, Jcc, tableauJcc, sigmas )
 
         psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
             opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss')
         
-        saving('gauss_lobatto', N_ang_bench, problem, N_cells, np.array([psig, phig, cell_centersg, Jg, tableauJg, sigmas]) )
+        saving('gauss_lobatto', N_ang_bench, problem, N_cells, psig, phig, cell_centersg, Jg, tableauJg, sigmas )
         
         for nn in range(nruns):
             tstart = time.time()
@@ -157,7 +157,7 @@ def perform_convergence(problem = '3_mat', nruns = 3):
                 opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
             timelist_GLeg[iang] += (time.time()-tstart)/nruns
         
-        saving('gauss_legendre', N_ang_bench, problem, N_cells, np.array([psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas]) )
+        saving('gauss_legendre', N_ang_bench, problem, N_cells, psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas )
         
         phi_cc_true[iang,:] = phicc
         reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], x1, x2)
@@ -456,7 +456,7 @@ def Pn_quadrature(M, xs, ws, a= -1.0, b = 1.0):
         Pnvec[ix] = Pn(M, arg)
     return (b-a)/2 * np.sum(ws * Pnvec)
 
-def saving(type, Sn, problem_name, N_cells, dat, check = False):
+def saving(type, Sn, problem_name, N_cells, psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas, check = False):
     f = h5py.File(f'NestedSn_solutions.h5', 'w')
     if check == True:
         if f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
@@ -464,7 +464,14 @@ def saving(type, Sn, problem_name, N_cells, dat, check = False):
         else:
             return 0
     else:
+        if not f.__contains__(f'{problem_name}_/{type}_/{N_cells}_'):
+            f.create_group(f'{problem_name}_/{type}_/{N_cells}_')
         if f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
             del f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}']
-        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}', data = dat)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/psi', data = psigl)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/phi', data = phigl)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/cell_centers', data = cell_centersgl)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/J', data = Jgl)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/tableau', data = tableauJgl)
+        f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/sigmas', data = sigmas)
     f.close()
