@@ -118,11 +118,16 @@ def perform_convergence(problem = '3_mat', nruns = 3):
     print('primed')
     saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas )
     tstart = time.time()
-    psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
+
+    if saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas, check = True ):
+        psib, phib, cell_centersb, Jb, tableauJb, sigmas = load('gauss_legendre', N_ang_bench, problem, N_cells)
+    else:
+        psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = N_cells, N_ang = N_ang_bench, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type='gauss')
+        saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas )
+    
     reaction_rate_bench = reaction_rate(cell_centersb, phib, sigmas[0], x1, x2)
 
-    saving('gauss_legendre', N_ang_bench, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas )
     tend = time.time()
     bench_time = tend - tstart
     print(reaction_rate_bench, 'bench reaction')
@@ -144,23 +149,32 @@ def perform_convergence(problem = '3_mat', nruns = 3):
 
         for nn in range(nruns):
             tstart = time.time()
-            psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
-                opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]))
-            timelist_CC[iang] += (time.time()-tstart)/nruns
-        saving('clenshaw_curtis', N_ang_bench, problem, N_cells, psicc, phicc, cell_centerscc, Jcc, tableauJcc, sigmas )
-
-        psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
-            opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss')
+            if saving('clenshaw_curtis', ang, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas, check = True ):
+                psicc, phicc, cell_centerscc, Jcc, tableauJcc, sigmas = load('clenshaw_curtis', ang, problem, N_cells)
+            else:
+                psicc, phicc, cell_centerscc, muscc, tableaucc, Jcc, tableauJcc, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
+                    opacity_function = opacity, wynn_epsilon = True, laststep = True,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]))
+                timelist_CC[iang] += (time.time()-tstart)/nruns
+                saving('clenshaw_curtis', N_ang_bench, problem, N_cells, psicc, phicc, cell_centerscc, Jcc, tableauJcc, sigmas )
         
-        saving('gauss_lobatto', N_ang_bench, problem, N_cells, psig, phig, cell_centersg, Jg, tableauJg, sigmas )
+        if saving('gauss_lobatto', ang, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas, check = True ):
+            psig, phig, cell_centersg, Jg, tableauJg, sigmas = load('gauss_lobatto', ang, problem, N_cells)
+        else:
+            psig, phig, cell_centersg, musg, tableaug, Jg, tableauJg, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
+                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L =LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss')
+        
+            saving('gauss_lobatto', N_ang_bench, problem, N_cells, psig, phig, cell_centersg, Jg, tableauJg, sigmas )
         
         for nn in range(nruns):
             tstart = time.time()
-            psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
-                opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
-            timelist_GLeg[iang] += (time.time()-tstart)/nruns
-        
-        saving('gauss_legendre', N_ang_bench, problem, N_cells, psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas )
+            if saving('gauss_legendre', ang, problem, N_cells, psib, phib, cell_centersb, Jb, tableauJb, sigmas, check = True ):
+                psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas = load('gauss_legendre', ang, problem, N_cells)
+            else:
+                psigl, phigl, cell_centersgl, musgl, tableaugl, Jgl, tableauJgl, sigmas = solve(N_cells = N_cells, N_ang = ang, left_edge = 'source1', right_edge = right_edge, IC = IC, source = 'off',
+                    opacity_function = opacity, wynn_epsilon = False, laststep = False,  L = LL, tol = etol, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [strength,0.0], maxits = 1e7, input_source = np.array([0.0]), quad_type = 'gauss_legendre')
+                timelist_GLeg[iang] += (time.time()-tstart)/nruns
+            
+                saving('gauss_legendre', N_ang_bench, problem, N_cells, psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas )
         
         phi_cc_true[iang,:] = phicc
         reaction_rate_cc[iang] = reaction_rate(cell_centerscc, phicc, sigmas[0], x1, x2)
@@ -201,8 +215,8 @@ def perform_convergence(problem = '3_mat', nruns = 3):
     J_err_estimate_lr[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'linear_regression', target=N_ang_list[-1])
     J_err_estimate_rich[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'richardson', target=N_ang_list[-1])
     J_err_estimate_diff[-1] = convergence_estimator(N_ang_list, tableauJcc[-1][1:, 1], method = 'difference', target=N_ang_list[-1])
-    reaction_err_estimate_diff[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'linear_regression', target=N_ang_list[-1])
-    reaction_rate_estimate_lr[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'difference', target=N_ang_list[-1])
+    reaction_err_estimate_diff[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'difference', target=N_ang_list[-1])
+    reaction_rate_estimate_lr[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'linear_regression', target=N_ang_list[-1])
     reaction_rate_estimate_rich[-1] = convergence_estimator(N_ang_list, reaction_rate_nested, method = 'richardson', target=N_ang_list[-1])
 
 
@@ -462,15 +476,17 @@ def Pn_quadrature(M, xs, ws, a= -1.0, b = 1.0):
 def saving(type, Sn, problem_name, N_cells, psigl, phigl, cell_centersgl, Jgl, tableauJgl, sigmas, check = False):
     f = h5py.File(f'NestedSn_solutions.h5', 'w')
     if check == True:
-        if f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
+        if not f.__contains__(f'{problem_name}_/{type}_/{N_cells}_'):
+            return 0
+        elif f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
             return 1
         else:
             return 0
     else:
         if not f.__contains__(f'{problem_name}_/{type}_/{N_cells}_'):
             f.create_group(f'{problem_name}_/{type}_/{N_cells}_')
-        if f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
-            del f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}']
+        # if f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].__contains__(f'{Sn}'):
+        #     del f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}']
         f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/psi', data = psigl)
         f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/phi', data = phigl)
         f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/cell_centers', data = cell_centersgl)
@@ -478,3 +494,14 @@ def saving(type, Sn, problem_name, N_cells, psigl, phigl, cell_centersgl, Jgl, t
         f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/tableau', data = tableauJgl)
         f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'].create_dataset(f'{Sn}/sigmas', data = sigmas)
     f.close()
+
+def load(type, Sn, problem_name, N_cells):
+    f = h5py.File(f'NestedSn_solutions.h5', 'w')
+    psi = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/psi']
+    phi = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/phi']
+    cell_centers = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/cell_centers']
+    J = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/J']
+    tableau = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/tableau']
+    sigmas = f[f'{problem_name}_'][f'{type}_'][f'{N_cells}_'][f'{Sn}/sigmas']
+    f.close()
+    return psi, phi, cell_centers, J, tableau, sigmas
