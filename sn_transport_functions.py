@@ -4,6 +4,8 @@ from chaospy.quadrature import clenshaw_curtis
 import math
 from functions import quadrature
 from scipy.interpolate import interp1d
+from numba.extending import get_cython_function_address
+import ctypes 
 import scipy.integrate as integrate
 from numba import njit
 def cc_quad(N):
@@ -244,14 +246,18 @@ class sigma_class:
 
 
 class mesh_class:
-    def __init__(self, N_cells, L, opacity_function):
+    def __init__(self, N_cells, L, opacity_function, geometry = 'slab'):
         self.N_cells = N_cells
         self.opacity_function = opacity_function
         self.L = L
-
+        self.geometry = geometry
     def make_mesh(self):
         if self.opacity_function == 'constant':
-            self.mesh = np.linspace(-self.L/2, self.L/2, self.N_cells+1)
+            if self.geometry == 'sphere':
+                self.mesh = np.linspace(0, self.L, self.N_cells+1)
+            else:
+                self.mesh = np.linspace(-self.L/2, self.L/2, self.N_cells+1)
+
         elif self.opacity_function == '3_material':
             third = int(2*int(self.N_cells + 1)/5)
             rest = int(self.N_cells+1-2*third)
@@ -313,6 +319,12 @@ class source_class:
             self.s = np.ones(self.mesh.size-1) * 0
         elif self.source_type == 'input':
             self.s = self.input_source
+        elif self.source_type == 'shell_OH':
+            self.s = np.ones(self.mesh.size-1) * 0
+            for ix, xx in enumerate(self.s):
+                if self.mesh[ix] >= 8 and self.mesh[ix + 1] <= 10:
+                    self.s[ix] = 1.0
+
         
 class IC_class:
     def __init__(self, N_ang, N_cells, IC, mesh, angles):
@@ -379,7 +391,7 @@ class boundary_class:
 
 
 @njit
-def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright):
+def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, geometry = 'slab'):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
@@ -396,11 +408,14 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
             if k == 0:
                 # psiminus = boundary_class('left', mun)
                 psiminus = psiminusleft
-
-            psin[k] = (1 + 0.5 * sigma_t[k] * delta/abs(mun))**-1 * (psiminus + 0.5 * delta * q/abs(mun))
+            
+            if k == 0 and geometry == 'sphere': # only for sphere
+                psin[k] = psiminusleft
+            else:
+                psin[k] = (1 + 0.5 * sigma_t[k] * delta/abs(mun))**-1 * (psiminus + 0.5 * delta * q/abs(mun))
             psiminus_new = 2 * psin[k] - psiminus
             psiminus = psiminus_new
-        error = 0
+        # error = 0
 
     elif mun <0.0:
         for kk in range(0, N_cells):
@@ -416,7 +431,7 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
             psin[k] = (1 + 0.5 * sigma_t[k] * delta/abs(mun))**-1 * (psiplus + 0.5 * delta * q/abs(mun))
             psiplus_new = 2 * psin[k] - psiplus
             psiplus = psiplus_new
-        error = 0
+        # error = 0
     
     return psin
 
@@ -502,3 +517,47 @@ def  wynn_epsilon_algorithm(S):
                 #     print('potential working precision issue')
                 tableau[r,w] = tableau[r-1,w-2] + 1/(tableau[r,w-1] - tableau[r-1,w-1])
         return tableau
+
+
+@njit
+def calculate_psi_moments(N_mom, V, ws, N_ang, mus):
+    moments = np.zeros((N_mom))
+    for n in range(N_mom):
+            for l in range(N_ang):
+                moments[n] +=  ws[l] * V[l] * Pn_scalar(n, mus[l], -1, 1) 
+    # print(moments, 'moments')
+    # print(V,'solution vector in moments')
+    # go backwards and delete moments that are basically zero
+    # N_mom_needed = N_mom
+    # tol = 1e-10
+    # for n in range(N_mom-1):
+    #     if np.max(np.abs(moments[n])) <= tol:
+    #        if np.max(np.abs(moments[n+1])) <= tol:
+    #            N_mom_needed = n
+    #            break
+    # N_mom_needed = N_mom
+    return moments
+
+@njit
+def Pn_scalar(n,x,a=-1.0,b=1.0):
+    tmp = 0.0
+    z = x
+
+    # tmp[count] = sc.eval_legendre(n,z)*fact
+    tmp = numba_eval_legendre_float64(n, z)
+    return tmp 
+@njit
+def numba_eval_legendre_float64(n, x):
+      return eval_legendre_float64_fn(n, x)
+  
+_dble = ctypes.c_double
+addr = get_cython_function_address("scipy.special.cython_special", "__pyx_fuse_0_1eval_legendre")
+functype = ctypes.CFUNCTYPE(_dble, _dble, _dble)
+eval_legendre_float64_fn = functype(addr)
+
+@njit 
+def legendre_difference(N_mom, psi_moments, mu):
+    res = 0.0
+    for n in range(N_mom):
+        res += psi_moments[n] * (2 * n+1) * 0.5 * (n+1) * (mu * Pn_scalar(n, mu, -1,1) -   Pn_scalar(n+1, mu, -1,1))  
+    return res

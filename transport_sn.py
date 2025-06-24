@@ -1,16 +1,18 @@
 import numpy as np
 import math
-from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep
+from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from functions import quadrature
 
 def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'source1', IC = 'cold', source = 'off',
-          opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0, sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'cc'):
+          opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 5.0, tol = 1e-13, source_strength = 1.0,
+        sigma_a = 0.0, sigma_s = 1.0, sigma_t = 1.0,  strength = [1.0,0.0], maxits = 1e10, input_source = np.array([0.0]), quad_type = 'cc', geometry = 'slab', N_psi_moments = 2):
     # initialize mesh
-    mesh_ob = mesh_class(N_cells, L, opacity_function)
+    mesh_ob = mesh_class(N_cells, L, opacity_function, geometry)
     mesh_ob.make_mesh()
     mesh = mesh_ob.mesh
+    print(mesh, 'mesh_edges')
     print(N_ang, 'angles')
     # Initialize source
     source_ob = source_class(source, mesh,  input_source, source_strength)
@@ -55,6 +57,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     cell_centers = np.zeros(N_cells)
     for ix in range(N_cells):
         cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
+
     
     while tolerance_achieved == False:
         
@@ -65,7 +68,12 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         source_ob.make_source()
 
         s = source_ob.s
-        
+        if geometry =='sphere':
+            psi_moments = np.zeros((N_psi_moments, N_cells))
+            ang_diff_term = np.zeros(N_cells)
+            for k in range(N_cells):
+                psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                
 
         for iang, mu in enumerate(mus):
             if source == 'input':
@@ -77,17 +85,27 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             psiplusright = 0
             psiminusleft = 0 
             if mu >0:
-                psiminusleft = boundary_ob('left', mu)
+                if geometry == 'sphere':
+                    psiminusleft = psi[N_ang - iang-1, 0]
+                    # print(psiminusleft, 'psi left')
+                else:
+                    psiminusleft = boundary_ob('left', mu)
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
                 if right_edge == 'reflecting':
                     psiplusright = psi[N_ang - iang-1, -1]
-    
+            if geometry == 'sphere':
+                for k in range(N_cells):
+                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) / (cell_centers[k] + 1e-10)
 
-            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
+    
+                snew = s - ang_diff_term * abs(mu) 
+            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
         
         phi_ob.make_phi(psi, ws)
         phi = phi_ob.phi
+        if np.isnan(phi).any():
+            raise ValueError('nan phi')
 
 
         err = np.abs(phi_old - phi)
@@ -97,9 +115,10 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         phi_old = np.copy(phi)
         count += 1
         # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 100000:
+        if count  == 1000:
 
             print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
+            print(phi, 'phi')
             count = 0
         if max_err <= tol or iteration >= maxits:
             print(iteration, 'iterations required to converge')
@@ -126,24 +145,39 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             psiminusleft = 0 
             if mu >0:
                 psiminusleft = boundary_ob('left', mu)
+                if geometry == 'sphere':
+                    psiminusleft = psi[N_ang - iang-1, 0]
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
+            if geometry == 'sphere':
+                for k in range(N_cells):
+                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) / (cell_centers[k] + 1e-10)
 
-            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright)
+
+                snew = s - ang_diff_term * abs(mu)
+            psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
 
     J = np.zeros(2)
     J[0] = phi_ob.J(psi[:,0])
     J[1] = phi_ob.J(psi[:,-1])
     return psi, phi, cell_centers, mus, tableau, J, tableau_J, np.array([sigma_a, sigma_s])
 
-
-
-
+# Olson-Henderson shell source problem
+def run_sphere(N_ang = 8, N_mom = 4):
+    plt.ion()
+    plt.figure(1)
+    psi, phi, centers, mus, tableau, J, tableau_J, sigmas = solve(N_ang = N_ang, geometry='sphere', source = 'shell_OH', L = 10, sigma_s = 0.9, sigma_t= 1.0, N_psi_moments=N_mom)
+    plt.plot(centers, phi, '-')
+    plt.xlabel('x')
+    plt.ylabel(r'$\phi$')
+    # plt.ylim(0, 1.5)
+    plt.show()
+   
 
 def run_slab(N_ang = 136):
     plt.ion()
     plt.figure(1)
-    psi, phi, centers, mus = solve(N_ang = N_ang)
+    psi, phi, centers, mus, tableau, J, tableau_J, sigmas = solve(N_ang = N_ang)
     plt.plot(centers, phi, '-')
     plt.xlabel('x')
     plt.ylabel(r'$\phi$')
