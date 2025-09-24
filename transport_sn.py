@@ -31,7 +31,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         mus, ws = quadrature(N_ang, 'gauss_lobatto' )
     elif quad_type == 'gauss_legendre':
         mus, ws = quadrature(N_ang, 'gauss_legendre' )
-    if geometry == 'sphere':
+    if geometry == 'sphere' and ang_diff_type == 'diamond':
         N_ang +=1
         new_angles = np.sort(np.append(mus.copy(), -1))
         new_weights = np.zeros(N_ang)
@@ -44,6 +44,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     for ia in range(1, alphas.size):
             alphas[ia] = alphas[ia-1] - mus[ia] * ws[ia] * 2
     # Initialize angular flux
+    
     IC_ob = IC_class(N_ang, N_cells, IC, mesh, mus)
     IC_ob.make_IC()
     angular_flux_IC = IC_ob.angular_flux
@@ -98,19 +99,26 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             psiplusright = 0
             psiminusleft = 0 
             if mu >0:
-                if geometry == 'sphere':
+                if geometry == 'sphere' and ang_diff_type == 'diamond':
                     psiminusleft = psi[N_ang - iang, 0]
                     assert abs(mus[N_ang-iang]) == abs(mus[iang])
-                    # print(psiminusleft, 'psi left')
+                elif geometry == 'sphere' and ang_diff_type == 'SH':
+                        psiminusleft = psi[N_ang - iang-1, 0]
+                        assert abs(mus[N_ang-iang-1]) == abs(mus[iang])
+                        #
+                        # print(psiminusleft, 'psi left')
                 else:
-                    psiminusleft = boundary_ob('left', mu)
+                        psiminusleft = boundary_ob('left', mu)
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
                 if right_edge == 'reflecting':
                     psiplusright = psi[N_ang - iang-1, -1]
             if geometry == 'sphere':
                 for k in range(N_cells):
-                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu)*0 
+                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                # print(ang_diff_term, 'diff term')
+                # print(psi_moments, 'moments')
+                # assert 0
       
 
 
@@ -179,13 +187,17 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             psiminusleft = 0 
             if mu >0:
                 psiminusleft = boundary_ob('left', mu)
-                if geometry == 'sphere':
+                if geometry == 'sphere' and ang_diff_type == 'diamond':
                     psiminusleft = psi[N_ang - iang, 0]
+                elif geometry == 'sphere' and ang_diff_type == 'SH':
+                     psiminusleft = psi[N_ang - iang-1, 0]
+
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
             if geometry == 'sphere':
                 for k in range(N_cells):
-                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) *0
+                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                
 
             if geometry == 'sphere':
                 if iang >0:

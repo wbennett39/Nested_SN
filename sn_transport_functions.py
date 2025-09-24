@@ -474,9 +474,11 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 if diff_type == 'diamond':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type == 'SH':
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k] + Vi * q)
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
             psiminus_new = 2 * psin[k] - psiminus
             psiminus = psiminus_new
+        
         # error = 0
 
     elif mun <0.0:
@@ -508,9 +510,11 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 if diff_type == 'diamond':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type =='SH':
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k] + Vi * q)
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
             psiplus_new = 2 * psin[k] - psiplus
             psiplus = psiplus_new
+
         # error = 0
     
     return psin
@@ -640,5 +644,5 @@ eval_legendre_float64_fn = functype(addr)
 def legendre_difference(N_mom, psi_moments, mu):
     res = 0.0
     for n in range(N_mom):
-        res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) -   (n+1) * Pn_scalar(n+1, mu, -1,1))  
+        res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) - (n+1) * Pn_scalar(n+1, mu, -1,1))  
     return res
