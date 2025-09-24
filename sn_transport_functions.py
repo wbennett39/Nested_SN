@@ -435,6 +435,87 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     
     return psin
 
+
+@njit
+def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, ang_diff_term, diff_type = 'diamond'):
+    psin = psis * 0
+    # sigma_t = sigma_a + sigma_s
+    phi = phi *sigma_s
+
+    # print(sigma_s, 'scattering')
+    # print(sigma_t, 'total')
+    # print(mesh)
+
+    if mun >0.0:
+        for k in range(0, N_cells):
+            q = s[k] + phi[k]
+
+
+            delta = mesh[k+1]-mesh[k]
+            if k < N_cells-1:
+
+                rplus = 0.5 * (mesh[k+1] + mesh[k])
+            else:
+                rplus = mesh[k]
+            if k>0:
+                rminus = 0.5 * (mesh[k] + mesh[k-1])
+            else:
+                rminus = mesh[0] 
+            Aplus = 4 * math.pi * rplus**2
+            Aminus = 4 * math.pi * rminus**2
+            Vi = 4 * math.pi/3 * (rplus**3 - rminus**3)
+            if k == 0:
+                # psiminus = boundary_class('left', mun)
+                psiminus = psiminusleft
+            
+            if k == 0: # only for sphere
+                psin[k] = psiminusleft
+            else:
+                if diff_type == 'diamond':
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                elif diff_type == 'SH':
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k] + Vi * q)
+            psiminus_new = 2 * psin[k] - psiminus
+            psiminus = psiminus_new
+        # error = 0
+
+    elif mun <0.0:
+        for kk in range(0, N_cells):
+            k = N_cells - kk -1
+            q = s[k] + phi[k]
+            if k < N_cells-1:
+
+                rplus = 0.5 * (mesh[k+1] + mesh[k])
+            else:
+                rplus = mesh[k]
+            if k>0:
+                rminus = 0.5 * (mesh[k] + mesh[k-1])
+            else:
+                rminus = mesh[0] 
+            Aplus = 4 * math.pi * rplus**2
+            Aminus = 4 * math.pi * rminus**2
+            Vi = 4 * math.pi/3 * (rplus**3 - rminus**3)
+            # print(s[99], 's99')
+            # print(s.size)
+            # print(k)
+            delta = mesh[k+1]-mesh[k]
+            if k == N_cells-1:
+                #  psiplus = boundary_class('right', mun)
+                psiplus = psiplusright
+            if mun == -1:
+                psin[k] = (2 * psiplus +(rplus - rminus) * q) / (2 + sigma_t[k] *(rplus - rminus))
+            else:
+                if diff_type == 'diamond':
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                elif diff_type =='SH':
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k] + Vi * q)
+            psiplus_new = 2 * psin[k] - psiplus
+            psiplus = psiplus_new
+        # error = 0
+    
+    return psin
+
+
                 
 
 
@@ -521,7 +602,7 @@ def  wynn_epsilon_algorithm(S):
 
 @njit
 def calculate_psi_moments(N_mom, V, ws, N_ang, mus):
-    moments = np.zeros((N_mom))
+    moments = np.zeros(N_mom)
     for n in range(N_mom):
             for l in range(N_ang):
                 moments[n] +=  ws[l] * V[l] * Pn_scalar(n, mus[l], -1, 1) 
@@ -559,5 +640,5 @@ eval_legendre_float64_fn = functype(addr)
 def legendre_difference(N_mom, psi_moments, mu):
     res = 0.0
     for n in range(N_mom):
-        res += psi_moments[n] * (2 * n+1) * 0.5 * (n+1) * (mu * Pn_scalar(n, mu, -1,1) -   Pn_scalar(n+1, mu, -1,1))  
+        res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) -   (n+1) * Pn_scalar(n+1, mu, -1,1))  
     return res
