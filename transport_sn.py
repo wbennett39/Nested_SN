@@ -152,8 +152,12 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 else:
                     alphaplus = alphas[iang]
                     alphaminus = 0
-                psi[iang], psiminus_mu, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
+                psi[iang], psiminus_mu_s, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
                 
+                if iang == 0:
+                    psiminus_mu = psiminus_mu_s
+                else:
+                    psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
                 # if ang_diff_type =='diamond':
                 # if iang == 0:
                 #     psiminus_mu = psi[iang]
@@ -236,8 +240,11 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 else:
                     alphaplus = 0
                     alphaminus = 0
-                psi[iang], psiminus_mu, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
-                # if iang == 0:
+                psi[iang], psiminus_mu_s, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
+                if iang == 0:
+                    psiminus_mu = psiminus_mu_s
+                else:
+                    psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
                 #   psiminus_mu = psi[iang]
                 # else:
                 #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()

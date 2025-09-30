@@ -438,7 +438,7 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     return psin
 
 
-# @njit
+@njit
 def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, ang_diff_term, diff_type = 'diamond', psiplus_origin = 0.0):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
@@ -482,10 +482,11 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 #     # psiminus = boundary_class('left', mun)
                     # psiminus = psiminusleft
                 #     # psin[k] = psiminus
-                #     print(psiminus, 'psi minus', mun)
+                    # print(psiminus, 'psi minus', mun)
                 # else:
                 if diff_type == 'diamond':
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                    
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type == 'SH':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
@@ -493,7 +494,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 psiminus_new = 2 * psin[k] - psiminus
                 psiminus = psiminus_new
                 # if k>0:
-                psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k]
+                # psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k].copy()
     
         # error = 0
 
@@ -506,11 +507,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
 
                 rplus = 0.5 * (mesh[k+1] + mesh[k])
             else:
-                
-    
                 rplus = mesh[k] + (mesh[k-1] - mesh[k-2])/2
-
-
             if k>0:
                 rminus = 0.5 * (mesh[k] + mesh[k-1])
             else:
@@ -536,18 +533,18 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 psiplus = psiplus_new
             else:
                 if diff_type == 'diamond':
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type =='SH':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 psiplus_new = 2 * psin[k] - psiplus
                 psiplus = psiplus_new
                 # if k > 0:
-                psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k] 
+                # psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k].copy() 
                 if k == 0:
                     psiplus_origin = 2*psin[k] - psiplus
                     # psiplus_origin = psin[k]
-                    print(psiplus_origin, 'psi+ 0', mun)
+                    # print(psiplus_origin, 'psi+ 0', mun)
 
         # error = 0
     
