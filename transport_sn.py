@@ -42,7 +42,8 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         print(ws, 'new weights')
     alphas = np.zeros(N_ang)
     for ia in range(1, alphas.size):
-            alphas[ia] = alphas[ia-1] - mus[ia] * ws[ia] * 2
+            alphas[ia] = alphas[ia-1] - mus[ia] * ws[ia] 
+    print(np.sum(ws), 'should be 2')
     # Initialize angular flux
     
     IC_ob = IC_class(N_ang, N_cells, IC, mesh, mus)
@@ -87,8 +88,9 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             ang_diff_term = np.zeros(N_cells)
             for k in range(N_cells):
                 psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                # print(psi_moments[:, k], 'psi moments')
                 
-
+        psiplus_origin = np.zeros(N_ang)
         for iang, mu in enumerate(mus):
             if source == 'input':
                 snew = s[iang, :]
@@ -98,13 +100,20 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 snew = s
             psiplusright = 0
             psiminusleft = 0 
+            refl_index = 0
             if mu >0:
                 if geometry == 'sphere' and ang_diff_type == 'diamond':
                     psiminusleft = psi[N_ang - iang, 0]
+                    
+                    # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
+                    refl_index = N_ang - iang
                     assert abs(mus[N_ang-iang]) == abs(mus[iang])
                 elif geometry == 'sphere' and ang_diff_type == 'SH':
-                        psiminusleft = psi[N_ang - iang-1, 0]
+                        refl_index = N_ang - iang-1
                         assert abs(mus[N_ang-iang-1]) == abs(mus[iang])
+                        # print( abs(mus[N_ang-iang-1])- abs(mus[iang]))
+                        # print( abs(mus[N_ang-iang])- abs(mus[iang]))
+                        # print('--')
                         #
                         # print(psiminusleft, 'psi left')
                 else:
@@ -115,7 +124,19 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     psiplusright = psi[N_ang - iang-1, -1]
             if geometry == 'sphere':
                 for k in range(N_cells):
+                    plt.ioff()
                     ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                    # psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
+                    
+                    # mu_analytic = np.zeros(mus.size)
+                    # for im, mmu in enumerate(mus):
+                    #     mu_analytic[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
+                    # if np.max(np.abs(mu_analytic) > 0.001):
+                    #     plt.plot(mus, mu_analytic)
+                    #     print(mu_analytic)
+                    #     print(psi_moments)
+                    #     plt.plot(mus, psi_deriv, 'k--')
+                    #     plt.show()
                 # print(ang_diff_term, 'diff term')
                 # print(psi_moments, 'moments')
                 # assert 0
@@ -127,14 +148,17 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 if iang >0:
                     alphaplus = alphas[iang]
                     alphaminus = alphas[iang-1]
+
                 else:
-                    alphaplus = 0
+                    alphaplus = alphas[iang]
                     alphaminus = 0
-                psi[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type)
-                if iang == 0:
-                  psiminus_mu = psi[iang]
-                else:
-                    psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
+                psi[iang], psiminus_mu, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
+                
+                # if ang_diff_type =='diamond':
+                # if iang == 0:
+                #     psiminus_mu = psi[iang]
+                # else:    
+                #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
             else:
                 psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
         
@@ -182,15 +206,21 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 # print(snew[99].size)
                 # assert 0
             else:
-                snew = s
+                    snew = s
             psiplusright = 0
             psiminusleft = 0 
+            refl_index = 0
             if mu >0:
                 psiminusleft = boundary_ob('left', mu)
                 if geometry == 'sphere' and ang_diff_type == 'diamond':
                     psiminusleft = psi[N_ang - iang, 0]
+                    # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
+                    refl_index = N_ang - iang
+      
                 elif geometry == 'sphere' and ang_diff_type == 'SH':
-                     psiminusleft = psi[N_ang - iang-1, 0]
+                    #  psiminusleft = psi[N_ang - iang-1, 0]
+                    refl_index = N_ang - iang - 1
+                    assert abs(mus[N_ang - iang - 1]) == abs(mus[iang])
 
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
@@ -206,17 +236,18 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 else:
                     alphaplus = 0
                     alphaminus = 0
-                psi[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type)
-                if iang == 0:
-                  psiminus_mu = psi[iang]
-                else:
-                    psiminus_mu = 2 * psi[iang] - psiminus_mu
+                psi[iang], psiminus_mu, psiplus_origin[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, ang_diff_type, psiplus_origin[refl_index])
+                # if iang == 0:
+                #   psiminus_mu = psi[iang]
+                # else:
+                #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
             else:
                 psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
 
     J = np.zeros(2)
     J[0] = phi_ob.J(psi[:,0])
     J[1] = phi_ob.J(psi[:,-1])
+
     return psi, phi, cell_centers, mus, tableau, J, tableau_J, np.array([sigma_a, sigma_s])
 
 # Olson-Henderson shell source problem
