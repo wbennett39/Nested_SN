@@ -487,7 +487,8 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 if diff_type == 'diamond':
                     
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
-                elif diff_type == 'SH':
+                elif diff_type == 'SH' or diff_type == 'SHDPN':
+                    
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
             
@@ -534,7 +535,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
             else:
                 if diff_type == 'diamond':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
-                elif diff_type =='SH':
+                elif diff_type =='SH' or diff_type == 'SHDPN':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 psiplus_new = 2 * psin[k] - psiplus
@@ -659,8 +660,13 @@ def calculate_psi_moments_DPN(N_mom, V, ws, N_ang, mus):
     momentsR = np.zeros(N_mom)
     for n in range(N_mom):
             for l in range(N_ang):
-                momentsL[n] +=   (0.5) * ws[l] * V[l] * Pn_scalar_minus(n, mus[l] * .5 - .5, -1, 0) 
-                momentsR[n] +=   ws[l] * V[l] * Pn_scalar_plus(n, mus[l] * .5 + .5, 0, 1) 
+                # momentsL[n] +=   0.5 * ws[l] * V[l] * Pn_scalar_minus(n, mus[l] * .5 - .5, -1, 0) 
+                # momentsR[n] +=   0.5 * ws[l] * V[l] * Pn_scalar_plus(n, mus[l] * .5 + .5, 0, 1)
+                if mus[l] < 0:
+                    momentsL[n] +=  ws[l] * V[l] * Pn_scalar_minus(n, mus[l], -1, 0)
+                elif mus[l] > 0:
+                    momentsR[n] +=  ws[l] * V[l] * Pn_scalar_plus(n, mus[l], -1, 0)
+
     # print(moments, 'moments')
     # print(V,'solution vector in moments')
     # go backwards and delete moments that are basically zero
@@ -672,6 +678,8 @@ def calculate_psi_moments_DPN(N_mom, V, ws, N_ang, mus):
     #            N_mom_needed = n
     #            break
     # N_mom_needed = N_mom
+    print(momentsL, momentsR)
+    
     return momentsL, momentsR
 @njit
 def Pn_scalar(n,x,a=-1.0,b=1.0):

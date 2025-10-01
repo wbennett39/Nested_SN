@@ -150,9 +150,10 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     for im, mmu in enumerate(mus):
                         if ang_diff_type == 'SH':
                             mu_analytic[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
-                        else:
+                        elif ang_diff_type == 'SHDPN':
                             mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mmu)
-
+                    # print(mu_analytic)
+        
                     if np.max(np.abs(mu_analytic) > 0.001):
                         plt.plot(mus, mu_analytic)
                         # print(mu_analytic)
