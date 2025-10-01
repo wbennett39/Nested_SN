@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere, Pn_scalar,calculate_psi_moments_DPN, legendre_difference_DPN
+from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere, Pn_scalar,calculate_psi_moments_DPN, legendre_difference_DPN, Pn_scalar_minus, Pn_scalar_plus
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from functions import quadrature
@@ -88,13 +88,14 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         if geometry =='sphere':
             
             ang_diff_term = np.zeros(N_cells)
-            if ang_diff_type =='SH':
+            if ang_diff_type =='SH' or ang_diff_type == 'SHDPN':
                 for k in range(N_cells):
                     psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
-                    print(psi_moments[:, k], 'psi moments')
-            elif ang_diff_type == 'SHDPN':
-                for k in range(N_cells):
                     psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                    # print(psi_moments[:, k], 'psi moments')
+            # elif ang_diff_type == 'SHDPN':
+                # for k in range(N_cells):
+                    # )
 
                 
         psiplus_origin = np.zeros(N_ang)
@@ -139,27 +140,52 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     # print(ang_diff_term)
                     psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
                     psi_moments_grad = calculate_psi_moments(N_psi_moments, psi_deriv, ws, N_ang, mus)
+                    psi_moments_gradL, psi_moments_gradR = calculate_psi_moments_DPN(N_psi_moments, psi_deriv, ws, N_ang, mus)
                     psi_deriv_grad = psi_deriv * 0
                     Pnvec = mus*0
-                    for n in range(N_psi_moments):
-                        for im in range(mus.size):
-                            Pnvec[im] = Pn_scalar(n, mus[im])
-                        psi_deriv_grad += (2 * n +1) / 2. * psi_moments_grad[n] * Pnvec
+                    PnvecL = mus* 0
+                    PnvecR = mus*0
+                    if ang_diff_type == 'SH':
+                        for n in range(N_psi_moments):
+                            for im in range(mus.size):
+                                    Pnvec[im] = Pn_scalar(n, mus[im])
+
+                            psi_deriv_grad += (2 * n +1) / 2. * psi_moments_grad[n] * Pnvec
+                    elif ang_diff_type == 'SHDPN':
+                        for n in range(N_psi_moments):
+                            for im in range(mus.size):
+                                    if mus[im] < 0:
+                                        PnvecL[im] = Pn_scalar_minus(n, mus[im])
+                                    else:
+                                        PnvecR[im] = Pn_scalar_plus(n, mus[im])
+
+
+                            psi_deriv_grad += (2 * n +1) * psi_moments_gradL[n] * PnvecL +  (2 * n +1) * psi_moments_gradR[n] * PnvecR
+
 
                     mu_analytic = np.zeros(mus.size)
+                    mu_analytic2 = np.zeros(mus.size)
                     for im, mmu in enumerate(mus):
-                        if ang_diff_type == 'SH':
-                            mu_analytic[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
-                        elif ang_diff_type == 'SHDPN':
-                            mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mmu)
+                        # if ang_diff_type == 'SH':
+                            mu_analytic2[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
+                        # elif ang_diff_type == 'SHDPN':
+                            mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:, k], mmu)
                     # print(mu_analytic)
         
                     if np.max(np.abs(mu_analytic) > 0.001):
-                        plt.plot(mus, mu_analytic)
+                        plt.ioff()
+                        plt.plot(mus, mu_analytic, label = 'analytic gradient DPN')
+                        plt.plot(mus, mu_analytic2, label = 'analytic gradient PN')
+                        print(mu_analytic2 - mu_analytic, 'gradient diff')
                         # print(mu_analytic)
                         # print(psi_moments)
-                        plt.plot(mus, psi_deriv_grad, 'o', mfc = 'none')
-                        plt.plot(mus, psi_deriv, 'k--')
+                        plt.plot(mus, psi_deriv_grad, 'o', mfc = 'none', label = 'DPN expansion of gradient term')
+                        plt.plot(mus, psi_deriv, 'k--', label = 'gradient term')
+                        plt.xlabel(r'$\mu$', fontsize = 16)
+                        plt.ylabel(r'\partial_\mu(1-\mu^2) \: \psi')
+                        plt.legend()
+                        if k < mesh.size:
+                            plt.title(f'x = {0.5*(mesh[k] + mesh[k+1])}')
                         plt.show()
                 # print(ang_diff_term, 'diff term')
                 # print(psi_moments, 'moments')

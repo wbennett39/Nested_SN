@@ -678,7 +678,7 @@ def calculate_psi_moments_DPN(N_mom, V, ws, N_ang, mus):
     #            N_mom_needed = n
     #            break
     # N_mom_needed = N_mom
-    print(momentsL, momentsR)
+
     
     return momentsL, momentsR
 @njit
@@ -733,6 +733,8 @@ def legendre_difference(N_mom, psi_moments, mu):
 def legendre_difference_DPN(N_mom, mom_L, mom_R, mu):
     res = 0.0
     for n in range(N_mom):
-        res += mom_R[n] * ((1 + 2*n)*((-1 + mu + 2*mu**2*(-1 + n) - n + mu*n)*Pn_scalar_plus(n,mu) - (1 + mu)*(1 + n)*Pn_scalar_plus(1 + n,mu)))/(2.*mu)
-        res +=  mom_L[n] * ((1 + 2*n)*((-1 - mu*(1 + 2*mu) + (-1 + mu)*(1 + 2*mu)*n)*Pn_scalar_minus(n,mu) - (-1 + mu)*(1 + n)*Pn_scalar_minus(1 + n,mu)))/(2.*mu)
+        if mu > 0:
+            res += mom_R[n] * ((1 + 2*n)*((-1 + mu + 2*mu**2*(-1 + n) - n + mu*n)*Pn_scalar_plus(n,mu) - (1 + mu)*(1 + n)*Pn_scalar_plus(1 + n,mu)))/(2.*mu)
+        elif mu < 0:
+            res +=  mom_L[n] * ((1 + 2*n)*((-1 - mu*(1 + 2*mu) + (-1 + mu)*(1 + 2*mu)*n)*Pn_scalar_minus(n,mu) - (-1 + mu)*(1 + n)*Pn_scalar_minus(1 + n,mu)))/(2.*mu)
     return res
