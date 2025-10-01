@@ -653,7 +653,26 @@ def calculate_psi_moments(N_mom, V, ws, N_ang, mus):
     #            break
     # N_mom_needed = N_mom
     return moments
-
+@njit
+def calculate_psi_moments_DPN(N_mom, V, ws, N_ang, mus):
+    momentsL = np.zeros(N_mom)
+    momentsR = np.zeros(N_mom)
+    for n in range(N_mom):
+            for l in range(N_ang):
+                momentsL[n] +=   (0.5) * ws[l] * V[l] * Pn_scalar_minus(n, mus[l] * .5 - .5, -1, 0) 
+                momentsR[n] +=   ws[l] * V[l] * Pn_scalar_plus(n, mus[l] * .5 + .5, 0, 1) 
+    # print(moments, 'moments')
+    # print(V,'solution vector in moments')
+    # go backwards and delete moments that are basically zero
+    # N_mom_needed = N_mom
+    # tol = 1e-10
+    # for n in range(N_mom-1):
+    #     if np.max(np.abs(moments[n])) <= tol:
+    #        if np.max(np.abs(moments[n+1])) <= tol:
+    #            N_mom_needed = n
+    #            break
+    # N_mom_needed = N_mom
+    return momentsL, momentsR
 @njit
 def Pn_scalar(n,x,a=-1.0,b=1.0):
     tmp = 0.0
@@ -661,7 +680,24 @@ def Pn_scalar(n,x,a=-1.0,b=1.0):
 
     # tmp[count] = sc.eval_legendre(n,z)*fact
     tmp = numba_eval_legendre_float64(n, z)
-    return tmp 
+    return tmp
+
+@njit
+def Pn_scalar_plus(n,x,a=-1.0,b=1.0):
+    tmp = 0.0
+    z = x
+
+    # tmp[count] = sc.eval_legendre(n,z)*fact
+    tmp = numba_eval_legendre_float64(n, 2*z-1)
+    return tmp
+@njit
+def Pn_scalar_minus(n,x,a=-1.0,b=1.0):
+    tmp = 0.0
+    z = x
+
+    # tmp[count] = sc.eval_legendre(n,z)*fact
+    tmp = numba_eval_legendre_float64(n, 2*z+1)
+    return tmp
 @njit
 def numba_eval_legendre_float64(n, x):
       return eval_legendre_float64_fn(n, x)
@@ -682,4 +718,13 @@ def legendre_difference(N_mom, psi_moments, mu):
         elif n == N_mom -1:
             res += psi_moments[n] * 0.5 * (n * (n-1) * Pn_scalar(n-1, mu, -1,1))
         # res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) - (n+1) * Pn_scalar(n+1, mu, -1,1))  
+    return res
+
+
+@njit 
+def legendre_difference_DPN(N_mom, mom_L, mom_R, mu):
+    res = 0.0
+    for n in range(N_mom):
+        res += mom_R[n] * ((1 + 2*n)*((-1 + mu + 2*mu**2*(-1 + n) - n + mu*n)*Pn_scalar_plus(n,mu) - (1 + mu)*(1 + n)*Pn_scalar_plus(1 + n,mu)))/(2.*mu)
+        res +=  mom_L[n] * ((1 + 2*n)*((-1 - mu*(1 + 2*mu) + (-1 + mu)*(1 + 2*mu)*n)*Pn_scalar_minus(n,mu) - (-1 + mu)*(1 + n)*Pn_scalar_minus(1 + n,mu)))/(2.*mu)
     return res

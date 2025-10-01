@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere
+from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere, Pn_scalar,calculate_psi_moments_DPN, legendre_difference_DPN
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from functions import quadrature
@@ -73,7 +73,9 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     for ix in range(N_cells):
         cell_centers[ix] = (mesh[ix+1] + mesh[ix])/2
 
-    
+    psi_moments = np.zeros((N_psi_moments, N_cells))
+    psi_momentsL = np.zeros((N_psi_moments, N_cells))
+    psi_momentsR = np.zeros((N_psi_moments, N_cells))
     while tolerance_achieved == False:
         
         iteration += 1
@@ -84,11 +86,16 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
 
         s = source_ob.s
         if geometry =='sphere':
-            psi_moments = np.zeros((N_psi_moments, N_cells))
+            
             ang_diff_term = np.zeros(N_cells)
-            for k in range(N_cells):
-                psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
-                # print(psi_moments[:, k], 'psi moments')
+            if ang_diff_type =='SH':
+                for k in range(N_cells):
+                    psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                    print(psi_moments[:, k], 'psi moments')
+            elif ang_diff_type == 'SHDPN':
+                for k in range(N_cells):
+                    psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+
                 
         psiplus_origin = np.zeros(N_ang)
         for iang, mu in enumerate(mus):
@@ -108,7 +115,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
                     refl_index = N_ang - iang
                     assert abs(mus[N_ang-iang]) == abs(mus[iang])
-                elif geometry == 'sphere' and ang_diff_type == 'SH':
+                elif geometry == 'sphere' and (ang_diff_type == 'SH' or ang_diff_type =='SHDPN'):
                         refl_index = N_ang - iang-1
                         assert abs(mus[N_ang-iang-1]) == abs(mus[iang])
                         # print( abs(mus[N_ang-iang-1])- abs(mus[iang]))
@@ -122,21 +129,37 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                 psiplusright = boundary_ob('right', mu)
                 if right_edge == 'reflecting':
                     psiplusright = psi[N_ang - iang-1, -1]
-            if geometry == 'sphere':
+            if geometry == 'sphere' and (ang_diff_type =='SH' or ang_diff_type == 'SHDPN'):
                 for k in range(N_cells):
                     plt.ioff()
-                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
-                    # psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
-                    
-                    # mu_analytic = np.zeros(mus.size)
-                    # for im, mmu in enumerate(mus):
-                    #     mu_analytic[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
-                    # if np.max(np.abs(mu_analytic) > 0.001):
-                    #     plt.plot(mus, mu_analytic)
-                    #     print(mu_analytic)
-                    #     print(psi_moments)
-                    #     plt.plot(mus, psi_deriv, 'k--')
-                    #     plt.show()
+                    if ang_diff_type == 'SH':
+                        ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                    elif ang_diff_type == 'SHDPN':
+                        ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu) 
+                    # print(ang_diff_term)
+                    psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
+                    psi_moments_grad = calculate_psi_moments(N_psi_moments, psi_deriv, ws, N_ang, mus)
+                    psi_deriv_grad = psi_deriv * 0
+                    Pnvec = mus*0
+                    for n in range(N_psi_moments):
+                        for im in range(mus.size):
+                            Pnvec[im] = Pn_scalar(n, mus[im])
+                        psi_deriv_grad += (2 * n +1) / 2. * psi_moments_grad[n] * Pnvec
+
+                    mu_analytic = np.zeros(mus.size)
+                    for im, mmu in enumerate(mus):
+                        if ang_diff_type == 'SH':
+                            mu_analytic[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
+                        else:
+                            mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mmu)
+
+                    if np.max(np.abs(mu_analytic) > 0.001):
+                        plt.plot(mus, mu_analytic)
+                        # print(mu_analytic)
+                        # print(psi_moments)
+                        plt.plot(mus, psi_deriv_grad, 'o', mfc = 'none')
+                        plt.plot(mus, psi_deriv, 'k--')
+                        plt.show()
                 # print(ang_diff_term, 'diff term')
                 # print(psi_moments, 'moments')
                 # assert 0
@@ -201,8 +224,13 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     if geometry =='sphere':
         psi_moments = np.zeros((N_psi_moments, N_cells))
         ang_diff_term = np.zeros(N_cells)
-        for k in range(N_cells):
-            psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+        if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN':
+            for k in range(N_cells):
+                if ang_diff_type == 'SH':
+                    psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                elif ang_diff_type == 'SHDPN':
+                    psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+
 
     for iang, mu in enumerate(mus):
             if source == 'input':
@@ -221,7 +249,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
                     refl_index = N_ang - iang
       
-                elif geometry == 'sphere' and ang_diff_type == 'SH':
+                elif geometry == 'sphere' and (ang_diff_type == 'SH' or ang_diff_type == 'SHDPN'):
                     #  psiminusleft = psi[N_ang - iang-1, 0]
                     refl_index = N_ang - iang - 1
                     assert abs(mus[N_ang - iang - 1]) == abs(mus[iang])
@@ -229,8 +257,13 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
             if geometry == 'sphere':
-                for k in range(N_cells):
-                    ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN':
+                    for k in range(N_cells):
+                        if ang_diff_type == 'SH':
+                            ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                        elif ang_diff_type == 'SHDPN':
+                            ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu)
+                
                 
 
             if geometry == 'sphere':
