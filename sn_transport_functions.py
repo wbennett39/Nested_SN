@@ -438,8 +438,8 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     return psin
 
 
-@njit
-def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, ang_diff_term, diff_type = 'diamond', psiplus_origin = 0.0):
+# @njit
+def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs, diff_type = 'diamond', psiplus_origin = 0.0):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
@@ -447,7 +447,8 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
     # print(sigma_s, 'scattering')
     # print(sigma_t, 'total')
     # print(mesh)
-
+    fac = 1
+    psiplus_origin_new = psiplus_origin.copy()
     if mun >0.0:
         for k in range(0, N_cells):
             # if k ==0:
@@ -478,6 +479,9 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 if k == 0:
                     # psiminus = psiminus_mu[0]
                     psiminus = psiplus_origin
+                    # print(psiminus, 'psi-')
+
+       
                 #     # psiminus = 10
                 #     # psiminus = boundary_class('left', mun)
                     # psiminus = psiminusleft
@@ -488,12 +492,19 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                     
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type == 'SH' or diff_type == 'SHDPN':
+                    # if k ==0:
+                    #     ang_diff_term[k] *=0
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]* fac   + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                     
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
-                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
-            
+                    moment0SH = ang_diff_term[k]
+                    moment0DD = 2/wn * alphaplus * psin[k] - 1/wn *  (alphaplus + alphaminus) * psiminus_mu[k]
+    
                 psiminus_new = 2 * psin[k] - psiminus
+                psi_at_halfs[k] = psiminus_new
                 psiminus = psiminus_new
+                if k == 0:
+                    psiplus_origin_new = psiminus
                 # if k>0:
                 # psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k].copy()
     
@@ -528,6 +539,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 #  psiplus = boundary_class('right', mun)
                 psiplus = psiplusright
             if abs(mun - -1) <=1e-13:
+  
                 psiminus_mu[k]  = (2 * psiplus + (rplus - rminus) * q) / (2 + sigma_t[k] *(rplus - rminus))
                 psin[k] = psiminus_mu[k]
                 psiplus_new =  2 * psin[k] - psiplus
@@ -536,20 +548,27 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 if diff_type == 'diamond':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type =='SH' or diff_type == 'SHDPN':
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k]/2 + Vi * q)
-                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 4/wn *(Aplus - Aminus) * alphaplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus + 2/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                    # if k ==0:
+                    #     ang_diff_term[k] *=0
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k] * fac + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+                    moment0SH = ang_diff_term[k]
+                    moment0DD = 2/wn  * alphaplus * psin[k] - 1/wn  * (alphaplus + alphaminus) * psiminus_mu[k]
+    
                 psiplus_new = 2 * psin[k] - psiplus
                 psiplus = psiplus_new
+                psi_at_halfs[k] = psiplus
                 # if k > 0:
                 # psiminus_mu[k] = 2 * psin[k] - psiminus_mu[k].copy() 
                 if k == 0:
-                    psiplus_origin = 2*psin[k] - psiplus
+                    psiplus_origin_new = 2*psin[k] - psiplus
+
                     # psiplus_origin = psin[k]
                     # print(psiplus_origin, 'psi+ 0', mun)
 
         # error = 0
     
-    return psin, psiminus_mu, psiplus_origin
+    return psin, psiminus_mu, psiplus_origin_new, psi_at_halfs
 
 
                 
@@ -719,13 +738,13 @@ eval_legendre_float64_fn = functype(addr)
 def legendre_difference(N_mom, psi_moments, mu):
     res = 0.0
     for n in range(N_mom):
-        if n > 0 and n < N_mom-1:
-            res += psi_moments[n] * 0.5 * (n * (n-1) * Pn_scalar(n-1, mu, -1,1) - (n+2)*(n+1)* Pn_scalar(n+1, mu, -1,1) )
-        elif n == 0:
-            res += psi_moments[n] * 0.5 * ( - (n+2)*(n+1)* Pn_scalar(n+1, mu, -1,1) )
-        elif n == N_mom -1:
-            res += psi_moments[n] * 0.5 * (n * (n-1) * Pn_scalar(n-1, mu, -1,1))
-        # res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) - (n+1) * Pn_scalar(n+1, mu, -1,1))  
+        # if n > 0 and n < N_mom-1:
+        #     res += psi_moments[n] * 0.5 * (n * (n-1) * Pn_scalar(n-1, mu, -1,1) - (n+2)*(n+1)* Pn_scalar(n+1, mu, -1,1) )
+        # elif n == 0:
+        #     res += psi_moments[n] * 0.5 * ( - (n+2)*(n+1)* Pn_scalar(n+1, mu, -1,1) )
+        # elif n == N_mom -1:
+        #     res += psi_moments[n] * 0.5 * (n * (n-1) * Pn_scalar(n-1, mu, -1,1))
+        res += psi_moments[n] * (2 * n+1) * 0.5  * (mu * (n-1) * Pn_scalar(n, mu, -1,1) - (n+1) * Pn_scalar(n+1, mu, -1,1))  
     return res
 
 
@@ -738,3 +757,65 @@ def legendre_difference_DPN(N_mom, mom_L, mom_R, mu):
         elif mu < 0:
             res +=  mom_L[n] * ((1 + 2*n)*((-1 - mu*(1 + 2*mu) + (-1 + mu)*(1 + 2*mu)*n)*Pn_scalar_minus(n,mu) - (-1 + mu)*(1 + n)*Pn_scalar_minus(1 + n,mu)))/(2.*mu)
     return res
+
+
+
+# @njit
+# def moment0_Legendre(mu_halfs, N_legendre, legendre_moms, N_ang):
+#     res = np.zeros(N_ang)
+
+#     for im in range(1,N_ang):
+#         for n in range(N_legendre):
+#             res[im] += 1/(mu_halfs[im+1] - mu_halfs[im]) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mu_halfs[im+1]**2) * Pn_scalar(n, mu_halfs[im+1]) - (1-mu_halfs[im]**2) * Pn_scalar(n, mu_halfs[im]) )
+#     # print(res)
+
+#     return res
+
+# @njit
+def moment0_Legendre(iang, mus, N_legendre, legendre_moms, N_ang, psir0):
+        res = 0.0
+    # if iang > 0:
+        if iang == N_ang-1:
+            mup = 1
+        else:
+            mup = (mus[iang] + mus[iang+1]) * 0.5
+        if iang == 0:
+            mum = -1
+        else:
+            mum = (mus[iang] + mus[iang-1]) * 0.5
+        deltamu = mup - mum
+        if iang == 1:
+            for n in range(N_legendre):
+                res += 1/(deltamu) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mup**2) * Pn_scalar(n, mup))
+            res += 1/deltamu *(1-mum**2) * psir0 # This is just adding 0
+        else:
+
+            for n in range(N_legendre):
+                res += 1/(deltamu) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mup**2) * Pn_scalar(n, mup) - (1-mum**2) * Pn_scalar(n, mum) )
+        return res
+
+
+
+
+def moment0_Legendre_alphas(iang, mus, N_legendre, legendre_moms, N_ang, psir0, wn, alphap, alpham):
+    res = 0.0
+    if iang > 0:
+        if iang == N_ang-1:
+            mup = 1
+        else:
+            mup = (mus[iang] + mus[iang+1]) * 0.5
+        if iang == 1:
+            mum = -1
+        else:
+            mum = (mus[iang] + mus[iang-1]) * 0.5
+        deltamu = mup - mum
+        if iang == 1:
+            for n in range(N_legendre):
+                res += 1/(wn) * 0.5 * (2*n + 1)*legendre_moms[n] * (alphap * Pn_scalar(n, mup))
+            res += 1/wn *alpham * psir0 # This is just adding 0
+
+        else:
+
+            for n in range(N_legendre):
+                res += 1/(wn) * 0.5 * (2*n + 1)*legendre_moms[n] * (alphap * Pn_scalar(n, mup) - alpham * Pn_scalar(n, mum) )
+        return res
