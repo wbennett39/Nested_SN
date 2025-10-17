@@ -11,7 +11,7 @@ def run_problem(cells = 10, N_ang = 8):
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
                 opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0.9, sigma_s = 0.1, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e5, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'diamond')  
     psib2, phib2, cell_centersb2, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
-                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0.9, sigma_s = 0.1, sigma_t = 1.0,  strength = [0.0,1], maxits = 1000, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 2, ang_diff_type = 'SH')            
+                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0.9, sigma_s = 0.1, sigma_t = 1.0,  strength = [0.0,1], maxits = 1000, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'SH')            
     
     L = 1/3/100
     plt.ion()
