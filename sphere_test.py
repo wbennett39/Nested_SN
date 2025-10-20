@@ -9,9 +9,9 @@ def run_problem(cells = 10, N_ang = 8):
     # psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'source1', IC = 'cold', source = 'off',
                 # opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-16, source_strength = 1.0, sigma_a = 0.0, sigma_s = 10.0, sigma_t = 10.0,  strength = [0.0,1], maxits = 1e4, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'SH')
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
-                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0.9, sigma_s = 0.1, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e5, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'diamond')  
-    psib2, phib2, cell_centersb2, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
-                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0.9, sigma_s = 0.1, sigma_t = 1.0,  strength = [0.0,1], maxits = 1000, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'SH')            
+                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e5, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 8, ang_diff_type = 'diamond')  
+    psib2, phib2, cell_centersb2, musb2, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
+                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e5, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 4, ang_diff_type = 'diamond')            
     
     L = 1/3/100
     plt.ion()
@@ -22,8 +22,8 @@ def run_problem(cells = 10, N_ang = 8):
     # plt.plot(cell_centersb, (1/np.sinh(1/L))*np.sinh(cell_centersb/L)/cell_centersb, 'k-')
     plt.show()
     plt.figure('reflecting condition')
-    plt.plot(musb[:], psib2[:, 0])
-    plt.plot(musb[:], np.flip(psib2[:, 0]))
+    plt.plot(musb2[:], psib2[:, 0])
+    plt.plot(musb2[:], np.flip(psib2[:, 0]))
     plt.plot(musb[:], np.flip(psib[:, 0]), 'k-')
     plt.show()
 

@@ -88,312 +88,334 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     psiplus_origin = np.zeros(N_ang)
     psi_deriv_np = np.zeros(N_cells)
     psi_at_halfs = np.zeros((N_ang, N_cells))
-
-
-    while tolerance_achieved == False:
+    outer_tolerance_achieved = False
+    outer_its = 0
+    psi_new = psi.copy()
+    while outer_its < 1:
+        iteration =0
+        tolerance_achieved = False
+        phi_old = np.copy(phi) * 0
+        max_err =10
+        err = 1
+        for k in range(N_cells):
+                        psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                        psi_moments_half[:, k] = calculate_psi_moments(N_psi_moments, psi_at_halfs[:,k], ws, N_ang, mus)
+                        psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                        psi_origin_moms = calculate_psi_moments(N_psi_moments, psiplus_origin, ws, N_ang, mus)
+        outer_its += 1
+        print(outer_its, 'outer')
         
-        iteration += 1
-        if iteration == maxits -1:
-            print('max iterations')
-        
-        source_ob.make_source()
 
-        s = source_ob.s
-        if geometry =='sphere':
-            ang_diff_term = np.zeros(N_cells)
-            ang_diff_term2 = np.zeros((N_ang, N_cells))
-            if ang_diff_type =='SH' or ang_diff_type == 'SHDPN' or ang_diff_type == 'diamond':
-                # psiplus_origin[int(N_ang/2):] = np.flip(psiplus_origin[:int(N_ang/2)])
-                current_center = np.sum(ws * mus * psiplus_origin)
-
-                psi_for_moms = psi.copy()
-                # psi_for_moms[int(N_ang/2):,0] = psi_for_moms[:int(N_ang/2),0]
-                for k in range(N_cells):
-                    psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi_for_moms[:,k], ws, N_ang, mus)
-                    psi_moments_half[:, k] = calculate_psi_moments(N_psi_moments, psi_at_halfs[:,k], ws, N_ang, mus)
-                    psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
-                    psi_origin_moms = calculate_psi_moments(N_psi_moments, psiplus_origin, ws, N_ang, mus)
-                    # ang_diff_term2[:, k] = moment0_Legendre(mu_halfs, N_psi_moments, psi_moments[:, k], N_ang)
-                    
-                    # plt.ioff()
-                    # plt.figure(f'moments k = {k}')
-                    # plt.plot(np.linspace(0, N_psi_moments-1, N_psi_moments), np.abs(psi_moments[:, k]), '-o')
-                    # plt.show()
-                # print(np.max(psi_moments[:, 0] - 0.5 * (psi_moments_half[:, 0] + psi_origin_moms)), 'diamond diff applied to moments')
-                # psi_moments[0, 0] = 0.5 * (psi_moments_half[0, 0] + psi_origin_moms[0])
-                # psi_moments[1:, 0] = 0.5 * psi_moments_half[1:,0] 
-                # psi_origin_moms[1:] *= 0
-                old_flux = np.sum(ws  * psiplus_origin)
-                # plt.figure('phi recon')
-                # psi_recon = np.zeros((N_ang, N_cells))
-                # for ik in range(N_cells):
-                #     for imom in range(N_psi_moments):
-                #         for l in range(N_ang):
-                #             psi_recon[l, ik] += 0.5 *(2 * imom + 1) * psi_moments[imom, ik] * Pn_scalar(imom, mus[l])
-                # for ikplot in range(N_cells):
-                #     if np.max(psi[:,ikplot])>1e-8:
-                #         plt.figure(f'{ikplot}')
-                #         plt.plot(mus, psi_recon[:, ikplot], '-o', mfc = 'none')
-                #         plt.plot(mus, psi[:, ikplot], 'k-')
-                #         plt.show()
-                # for ni in range(N_psi_moments):
-                #     if ni %2 != 0:
-                #         psi_origin_moms[ni] *= 0
-                # diff_term = 0
-
-                # for im, mmu in enumerate(mus):
-                #     for n in range(1, N_psi_moments):
-                #         diff_term += 0.5 * (2 * n+1) * psi_origin_moms[n] * Pn_scalar(n, mmu) * ws[im]
-                # psi_origin_moms[0] = old_flux - diff_term
- 
-                # psiplus_origin *= 0
-                # for im, mmu in enumerate(mus):
-                #     for n in range(N_psi_moments):
-                #         psiplus_origin[im] += 0.5 * (2 * n+1) * psi_origin_moms[n] * Pn_scalar(n, mmu)
-                current_center = np.sum(ws * mus * psiplus_origin)
-                # print(current_center, 'current')
-                # np.testing.assert_allclose(abs(current_center), 1e-10, 1e-6, 1e-6)
-                # print(psiplus_origin, 'psi at r=0')
-                flux = np.sum(ws  * psiplus_origin)
-                psi_grad_at_0 = np.gradient(psiplus_origin, mus)
-
-        
-                # psi_moments[1:, 0] *=0 # reflecting BC
-                    # print(psi_moments[:, k], 'psi moments')
-            # elif ang_diff_type == 'SHDPN':
-                # for k in range(N_cells):
-                    # )
-
-                
-        psir0 = psi[0,:]
-        for iang, mu in enumerate(mus):
-           
-            if source == 'input':
-                snew = s[iang, :]
-                # print(snew[99].size)
-                # assert 0
-            else:
-                snew = s
-            psiplusright = 0
-            psiminusleft = 0 
-
-            if mu >0:
-                if geometry == 'sphere' and ang_diff_type == 'diamond':
-                    psiminusleft = psi[refl_index - iang, 0]
-                    
-                    # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
-
-                    assert abs(mus[refl_index-iang]) == abs(mus[iang])
-                elif geometry == 'sphere' and (ang_diff_type == 'SH' or ang_diff_type =='SHDPN'):
-                        # refl_index = N_ang - iang-1
-                        
-                        assert abs(mus[refl_index-iang]) == abs(mus[iang])
-                        psiminusleft = psi[refl_index-iang] 
-                        # print( abs(mus[N_ang-iang-1])- abs(mus[iang]))
-                        # print( abs(mus[N_ang-iang])- abs(mus[iang]))
-                        # print('--')
-                        #
-                        # print(psiminusleft, 'psi left')
-                else:
-                        psiminusleft = boundary_ob('left', mu)
-            elif mu <0:
-                psiplusright = boundary_ob('right', mu)
-                if right_edge == 'reflecting':
-                    psiplusright = psi[N_ang - iang-1, -1]
-            if geometry == 'sphere' and (ang_diff_type =='SH' or ang_diff_type == 'SHDPN'):
-                # print(phi -0.5*psi_moments[0,:], 'should be zero')
-                psi_deriv_np = np.zeros(N_cells)
-                # for k in range(N_cells):
-                #     psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi_for_moms[:,k], ws, N_ang, mus)
-                #     psi_moments_half[:, k] = calculate_psi_moments(N_psi_moments, psi_at_halfs[:,k], ws, N_ang, mus)
-                #     psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
-                #     psi_origin_moms = calculate_psi_moments(N_psi_moments, psiplus_origin, ws, N_ang, mus)
-                for ik in range(N_cells):
-                        psi_deriv_np[ik] = np.gradient((1-mus**2)*psi[:, ik], mus)[iang]
-           
-
-                
-                for k in range(N_cells):
-                    
-                    if ang_diff_type == 'SH':
-        
-                        # ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
-                        alpham = 0
-                        if iang>0:
-                            alpham = alphas[iang-1]
-                        ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
-                        # ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
-                        ang_diff_term2[iang, k] = ang_diff_term[k]
-                        # print(ang_diff_term[k], 'ang diff term')
-                        # print(psi_moments[:, k], 'moments')
-                    elif ang_diff_type == 'SHDPN':
-                        ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu) 
-                    
-                    zero_mom = 0.0
-                    first_mom = 0.0
-                    for n in range(N_psi_moments):
-                        for im, mmu in enumerate(mus):
-                            zero_mom += ws[im] * psi_moments[n,k]  * (2 * n+1) * 0.5 * (mmu * (n-1) * Pn_scalar(n, mmu, -1,1) - (n+1) * Pn_scalar(n+1, mmu, -1,1))
-    
-                            first_mom += ws[im] * mmu * psi_moments[n,k] * (2 * n+1) * 0.5  * (mmu * (n-1) * Pn_scalar(n, mmu, -1,1) - (n+1) * Pn_scalar(n+1, mmu, -1,1)) 
-                    # if ang_diff_type == 'SH':
-                        # np.testing.assert_allclose(abs(zero_mom), 0,rtol =1e-12, atol =1e-6)
-                        # if N_psi_moments >=3:
-                        #     # print(first_mom / (-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * 5/2 + 1e-12), 'first mom')
-                        #     # print(k, 'k')
-                        #     # print(first_mom)
-                        #     # print(-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * 5/2)
-                        #     np.testing.assert_allclose(first_mom, (-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * (5/2)),rtol =  1e-6, atol = 1e-6)
-
-                    plot_ang_sol = False
-                    # psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
-                    
-                    if plot_ang_sol == True:
-                        plt.ion()
-                        
-                        psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
-                        # psi_deriv = mus
-                        psi_moments_grad = calculate_psi_moments(N_psi_moments, psi_deriv, ws, N_ang, mus)
-                        psi_moments_gradL, psi_moments_gradR = calculate_psi_moments_DPN(N_psi_moments, psi_deriv, ws, N_ang, mus)
-                        psi_deriv_grad = psi_deriv * 0
-                        Pnvec = mus*0
-                        PnvecL = mus* 0
-                        PnvecR = mus*0
-                        if ang_diff_type == 'SH':
-                            for n in range(N_psi_moments):
-                                for im in range(mus.size):
-                                        Pnvec[im] = Pn_scalar(n, mus[im])
-
-                                psi_deriv_grad += (2 * n +1) / 2. * psi_moments_grad[n] * Pnvec
-                        
-                        elif ang_diff_type == 'SHDPN':
-                            for n in range(N_psi_moments):
-                                for im in range(mus.size):
-                                        if mus[im] < 0:
-                                            PnvecL[im] = Pn_scalar_minus(n, mus[im])
-                                        else:
-                                            PnvecR[im] = Pn_scalar_plus(n, mus[im])
-
-
-                                psi_deriv_grad += (2 * n +1) * psi_moments_gradL[n] * PnvecL +  (2 * n +1) * psi_moments_gradR[n] * PnvecR
-
-
-                        mu_analytic = np.zeros(mus.size)
-                        mu_analytic2 = np.zeros(mus.size)
-                        for im, mmu in enumerate(mus):
-                            # if ang_diff_type == 'SH':
-                                mu_analytic2[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
-                            # elif ang_diff_type == 'SHDPN':
-                                mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:, k], mmu)
-                        # print(mu_analytic)
+        while tolerance_achieved == False:
             
-                        if np.max(np.abs(mu_analytic) > 0.001):
-                   
-                            plt.figure('angular flux')
-                            plt.plot(mus, mu_analytic, label = 'analytic gradient DPN')
-                            plt.plot(mus, mu_analytic2, label = 'analytic gradient PN')
-                            # print(mu_analytic2 - mu_analytic, 'gradient diff')
-                            # print(mu_analytic)
-                            # print(psi_moments)
-                            plt.plot(mus, psi_deriv_grad, 'o', mfc = 'none', label = f'{ang_diff_type} expansion of gradient term')
+            iteration += 1
+            if iteration == maxits -1:
+                print('max iterations')
+            
+            source_ob.make_source()
+
+            s = source_ob.s
+            if geometry =='sphere':
+                ang_diff_term = np.zeros(N_cells)
+                ang_diff_term2 = np.zeros((N_ang, N_cells))
+                if ang_diff_type =='SH' or ang_diff_type == 'SHDPN' or ang_diff_type == 'diamond':
+                    # psiplus_origin[int(N_ang/2):] = np.flip(psiplus_origin[:int(N_ang/2)])
+                    current_center = np.sum(ws * mus * psiplus_origin)
+
+                    psi_for_moms = psi.copy()
+                    # psi_for_moms[int(N_ang/2):,0] = psi_for_moms[:int(N_ang/2),0]
+                    for k in range(N_cells):
+                        psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi_for_moms[:,k], ws, N_ang, mus)
+                        psi_moments_half[:, k] = calculate_psi_moments(N_psi_moments, psi_at_halfs[:,k], ws, N_ang, mus)
+                        psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                        psi_origin_moms = calculate_psi_moments(N_psi_moments, psiplus_origin, ws, N_ang, mus)
+                        # ang_diff_term2[:, k] = moment0_Legendre(mu_halfs, N_psi_moments, psi_moments[:, k], N_ang)
+                        
+                        # plt.ioff()
+                        # plt.figure(f'moments k = {k}')
+                        # plt.plot(np.linspace(0, N_psi_moments-1, N_psi_moments), np.abs(psi_moments[:, k]), '-o')
+                        # plt.show()
+                    # print(np.max(psi_moments[:, 0] - 0.5 * (psi_moments_half[:, 0] + psi_origin_moms)), 'diamond diff applied to moments')
+                    # psi_moments[0, 0] = 0.5 * (psi_moments_half[0, 0] + psi_origin_moms[0])
+                    # psi_moments[1:, 0] = 0.5 * psi_moments_half[1:,0] 
+                    # psi_origin_moms[1:] *= 0
+                    old_flux = np.sum(ws  * psiplus_origin)
+                    # plt.figure('phi recon')
+                    # psi_recon = np.zeros((N_ang, N_cells))
+                    # for ik in range(N_cells):
+                    #     for imom in range(N_psi_moments):
+                    #         for l in range(N_ang):
+                    #             psi_recon[l, ik] += 0.5 *(2 * imom + 1) * psi_moments[imom, ik] * Pn_scalar(imom, mus[l])
+                    # for ikplot in range(N_cells):
+                    #     if np.max(psi[:,ikplot])>1e-8:
+                    #         plt.figure(f'{ikplot}')
+                    #         plt.plot(mus, psi_recon[:, ikplot], '-o', mfc = 'none')
+                    #         plt.plot(mus, psi[:, ikplot], 'k-')
+                    #         plt.show()
+                    # for ni in range(N_psi_moments):
+                    #     if ni %2 != 0:
+                    #         psi_origin_moms[ni] *= 0
+                    # diff_term = 0
+
+                    # for im, mmu in enumerate(mus):
+                    #     for n in range(1, N_psi_moments):
+                    #         diff_term += 0.5 * (2 * n+1) * psi_origin_moms[n] * Pn_scalar(n, mmu) * ws[im]
+                    # psi_origin_moms[0] = old_flux - diff_term
     
-                            plt.plot(mus, psi_deriv, 'k--', label = 'gradient term')
-                            plt.xlabel(r'$\mu$', fontsize = 16)
-                            plt.ylabel(r'$\partial_\mu(1-\mu^2) \: \psi$')
-                            plt.legend()
-                            if k < mesh.size:
-                                plt.title(f'x = {0.5*(mesh[k] + mesh[k+1])}')
-                            # plt.show()
-                    # print(ang_diff_term, 'diff term')
-                    # print(psi_moments, 'moments')
+                    # psiplus_origin *= 0
+                    # for im, mmu in enumerate(mus):
+                    #     for n in range(N_psi_moments):
+                    #         psiplus_origin[im] += 0.5 * (2 * n+1) * psi_origin_moms[n] * Pn_scalar(n, mmu)
+                    current_center = np.sum(ws * mus * psiplus_origin)
+                    # print(current_center, 'current')
+                    # np.testing.assert_allclose(abs(current_center), 1e-10, 1e-6, 1e-6)
+                    # print(psiplus_origin, 'psi at r=0')
+                    flux = np.sum(ws  * psiplus_origin)
+                    psi_grad_at_0 = np.gradient(psiplus_origin, mus)
+
+            
+                    # psi_moments[1:, 0] *=0 # reflecting BC
+                        # print(psi_moments[:, k], 'psi moments')
+                # elif ang_diff_type == 'SHDPN':
+                    # for k in range(N_cells):
+                        # )
+
+                    
+            psir0 = psi[0,:]
+            for iang, mu in enumerate(mus):
+            
+                if source == 'input':
+                    snew = s[iang, :]
+                    # print(snew[99].size)
                     # assert 0
-      
-
-
-            # print(ang_diff_term - psi_deriv_np, 'deriv differences')
-            # print(ang_diff_term, 'analytic')
-            # print(psi_deriv_np, 'numpy')
-            # if np.max(np.abs(ang_diff_term) > 1e-5):
-            #     plt.figure(f'derivative term at mu = {mu}')
-            #     plt.plot(cell_centers, psi_deriv_np, 'k-')
-            #     plt.plot(cell_centers, ang_diff_term, 'o', mfc = 'none')
-            #     plt.show()
-            if geometry == 'sphere':
-                if iang >0:
-                    alphaplus = alphas[iang]
-                    alphaminus = alphas[iang-1]
-
                 else:
-                    alphaplus = alphas[iang]
-                    alphaminus = 0
-      
-                # print(mu_halfs[iang], 'mu half')
+                    snew = s
+                psiplusright = 0
+                psiminusleft = 0 
 
-   
+                if mu >0:
+                    if geometry == 'sphere' and ang_diff_type == 'diamond':
+                        psiminusleft = psi[refl_index - iang, 0]
+                        
+                        # psiminus_mu[int(N_ang/2):] = psiminus_mu[:int(N_ang/2)]
 
-                psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type,  psiplus_origin[refl_index-iang-1])
-                # print(psiplus_origin, 'origin psi')
-                # psiplus_origin *=0
-                if iang == 0:
-                    psiminus_mu = psiminus_mu_s
-                else:
-                    psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
-                # if ang_diff_type =='diamond':
-                # if iang == 0:
-                #     psiminus_mu = psi[iang]
-                # else:    
-                #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
-            else:
-                psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
-        # for k in range(N_cells):
-        #     print(np.sum(ang_diff_term2[1:, k] * (mu_halfs[1:] - mu_halfs[:-1])), 'ang diff sum 0')
+                        assert abs(mus[refl_index-iang]) == abs(mus[iang])
+                    elif geometry == 'sphere' and (ang_diff_type == 'SH' or ang_diff_type =='SHDPN'):
+                            # refl_index = N_ang - iang-1
+                            
+                            assert abs(mus[refl_index-iang]) == abs(mus[iang])
+                            psiminusleft = psi[refl_index-iang, 0] 
+                            # print( abs(mus[N_ang-iang-1])- abs(mus[iang]))
+                            # print( abs(mus[N_ang-iang])- abs(mus[iang]))
+                            # print('--')
+                            #
+                            # print(psiminusleft, 'psi left')
+                    else:
+                            psiminusleft = boundary_ob('left', mu)
+                elif mu <0:
+                    psiplusright = boundary_ob('right', mu)
+                    if right_edge == 'reflecting':
+                        psiplusright = psi[N_ang - iang-1, -1]
+                if geometry == 'sphere' and (ang_diff_type =='SH' or ang_diff_type == 'SHDPN'):
+                    # print(phi -0.5*psi_moments[0,:], 'should be zero')
+                    psi_deriv_np = np.zeros(N_cells)
+                    # for k in range(N_cells):
+                    #     psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi_for_moms[:,k], ws, N_ang, mus)
+                    #     psi_moments_half[:, k] = calculate_psi_moments(N_psi_moments, psi_at_halfs[:,k], ws, N_ang, mus)
+                    #     psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
+                    #     psi_origin_moms = calculate_psi_moments(N_psi_moments, psiplus_origin, ws, N_ang, mus)
+                    for ik in range(N_cells):
+                            psi_deriv_np[ik] = np.gradient((1-mus**2)*psi[:, ik], mus)[iang]
+            
+
+                    
+                    for k in range(N_cells):
+                        
+                        if ang_diff_type == 'SH':
+            
+                            # ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                            alpham = 0
+                            if iang>0:
+                                alpham = alphas[iang-1]
+                            # ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
+                            ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
+                            ang_diff_term2[iang, k] = ang_diff_term[k].copy()
+                            # print(ang_diff_term[k], 'ang diff term')
+                            # print(psi_moments[:, k], 'moments')
+                        elif ang_diff_type == 'SHDPN':
+                            ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu) 
+                        
+                        zero_mom = 0.0
+                        first_mom = 0.0
+                        for n in range(N_psi_moments):
+                            for im, mmu in enumerate(mus):
+                                zero_mom += ws[im] * psi_moments[n,k]  * (2 * n+1) * 0.5 * (mmu * (n-1) * Pn_scalar(n, mmu, -1,1) - (n+1) * Pn_scalar(n+1, mmu, -1,1))
+        
+                                first_mom += ws[im] * mmu * psi_moments[n,k] * (2 * n+1) * 0.5  * (mmu * (n-1) * Pn_scalar(n, mmu, -1,1) - (n+1) * Pn_scalar(n+1, mmu, -1,1)) 
+                        # if ang_diff_type == 'SH':
+                            # np.testing.assert_allclose(abs(zero_mom), 0,rtol =1e-12, atol =1e-6)
+                            # if N_psi_moments >=3:
+                            #     # print(first_mom / (-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * 5/2 + 1e-12), 'first mom')
+                            #     # print(k, 'k')
+                            #     # print(first_mom)
+                            #     # print(-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * 5/2)
+                            #     np.testing.assert_allclose(first_mom, (-4/3 * psi_moments[0, k]/2 + 4/ 15 * psi_moments[2,k] * (5/2)),rtol =  1e-6, atol = 1e-6)
+
+                        plot_ang_sol = False
+                        # psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
+                        
+                        if plot_ang_sol == True:
+                            plt.ion()
+                            
+                            psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
+                            # psi_deriv = mus
+                            psi_moments_grad = calculate_psi_moments(N_psi_moments, psi_deriv, ws, N_ang, mus)
+                            psi_moments_gradL, psi_moments_gradR = calculate_psi_moments_DPN(N_psi_moments, psi_deriv, ws, N_ang, mus)
+                            psi_deriv_grad = psi_deriv * 0
+                            Pnvec = mus*0
+                            PnvecL = mus* 0
+                            PnvecR = mus*0
+                            if ang_diff_type == 'SH':
+                                for n in range(N_psi_moments):
+                                    for im in range(mus.size):
+                                            Pnvec[im] = Pn_scalar(n, mus[im])
+
+                                    psi_deriv_grad += (2 * n +1) / 2. * psi_moments_grad[n] * Pnvec
+                            
+                            elif ang_diff_type == 'SHDPN':
+                                for n in range(N_psi_moments):
+                                    for im in range(mus.size):
+                                            if mus[im] < 0:
+                                                PnvecL[im] = Pn_scalar_minus(n, mus[im])
+                                            else:
+                                                PnvecR[im] = Pn_scalar_plus(n, mus[im])
+
+
+                                    psi_deriv_grad += (2 * n +1) * psi_moments_gradL[n] * PnvecL +  (2 * n +1) * psi_moments_gradR[n] * PnvecR
+
+
+                            mu_analytic = np.zeros(mus.size)
+                            mu_analytic2 = np.zeros(mus.size)
+                            for im, mmu in enumerate(mus):
+                                # if ang_diff_type == 'SH':
+                                    mu_analytic2[im] = legendre_difference(N_psi_moments, psi_moments[:,k], mmu)
+                                # elif ang_diff_type == 'SHDPN':
+                                    mu_analytic[im] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:, k], mmu)
+                            # print(mu_analytic)
+                
+                            if np.max(np.abs(mu_analytic) > 0.001):
+                    
+                                plt.figure('angular flux')
+                                plt.plot(mus, mu_analytic, label = 'analytic gradient DPN')
+                                plt.plot(mus, mu_analytic2, label = 'analytic gradient PN')
+                                # print(mu_analytic2 - mu_analytic, 'gradient diff')
+                                # print(mu_analytic)
+                                # print(psi_moments)
+                                plt.plot(mus, psi_deriv_grad, 'o', mfc = 'none', label = f'{ang_diff_type} expansion of gradient term')
+        
+                                plt.plot(mus, psi_deriv, 'k--', label = 'gradient term')
+                                plt.xlabel(r'$\mu$', fontsize = 16)
+                                plt.ylabel(r'$\partial_\mu(1-\mu^2) \: \psi$')
+                                plt.legend()
+                                if k < mesh.size:
+                                    plt.title(f'x = {0.5*(mesh[k] + mesh[k+1])}')
+                                # plt.show()
+                        # print(ang_diff_term, 'diff term')
+                        # print(psi_moments, 'moments')
+                        # assert 0
+        
+
+
+                # print(ang_diff_term - psi_deriv_np, 'deriv differences')
+                # print(ang_diff_term, 'analytic')
+                # print(psi_deriv_np, 'numpy')
+                # if np.max(np.abs(ang_diff_term) > 1e-5):
+                #     plt.figure(f'derivative term at mu = {mu}')
+                #     plt.plot(cell_centers, psi_deriv_np, 'k-')
+                #     plt.plot(cell_centers, ang_diff_term, 'o', mfc = 'none')
+                #     plt.show()
+                if geometry == 'sphere':
+                    if iang >0:
+                        alphaplus = alphas[iang]
+                        alphaminus = alphas[iang-1]
+
+                    else:
+                        alphaplus = alphas[iang]
+                        alphaminus = 0
+        
+                    # print(mu_halfs[iang], 'mu half')
+
     
-        # print(ang_diff_term2)
-        # assert 0
-              
-        phi_ob.make_phi(psi, ws)
-        phi = phi_ob.phi
-        if ang_diff_type == 'SHDPN' or ang_diff_type =='SH':
-            if plot_ang_sol == True:
-                plt.ion() 
-                plt.figure('scalar flux')
 
-                plt.plot(cell_centers, phi)
-                plt.show()
-                plt.figure('angular flux derivative')
-                psi_grad_at_0 = np.gradient(psiplus_origin, mus)
-                plt.plot(mus, psi_grad_at_0, '-')
-                plt.show()
-                print(psi_grad_at_0, 'gradient')
-        if np.isnan(phi).any():
-            raise ValueError('nan phi')
+                    psi_new[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type,  psiplus_origin[refl_index-iang-1])
+
+                    # psiplus_origin *=0
+                    if iang == 0:
+                        psiminus_mu = psiminus_mu_s
+                        psi[:, 0] = psi_new[iang,0]
+                        
+                    else:
+
+                        psiminus_mu[1:] = 2 * psi[iang][1:] - psiminus_mu.copy()[1:]
+                        psi[iang, 1:] = psi_new[iang, 1:]
+                        # psiminus_mu[0] = psiminus_mu_s[0]
+
+                    # if ang_diff_type =='diamond':
+                    # if iang == 0:
+                    #     psiminus_mu = psi[iang]
+                    # else:    
+                    #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
+                else:
+                    psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
+            # for k in range(N_cells):
+            #     print(np.sum(ang_diff_term2[1:, k] * (mu_halfs[1:] - mu_halfs[:-1])), 'ang diff sum 0')
+        
+            # print(ang_diff_term2)
+            # assert 0
+                
+            phi_ob.make_phi(psi, ws)
+            phi = phi_ob.phi
+            if ang_diff_type == 'SHDPN' or ang_diff_type =='SH':
+                if plot_ang_sol == True:
+                    plt.ion() 
+                    plt.figure('scalar flux')
+
+                    plt.plot(cell_centers, phi)
+                    plt.show()
+                    plt.figure('angular flux derivative')
+                    psi_grad_at_0 = np.gradient(psiplus_origin, mus)
+                    plt.plot(mus, psi_grad_at_0, '-')
+                    plt.show()
+                    print(psi_grad_at_0, 'gradient')
+            if np.isnan(phi).any():
+                raise ValueError('nan phi')
 
 
-        err = np.abs(phi_old - phi)
-        max_err = np.max(err)
-        max_err_loc = np.argmin(np.abs(max_err - err ))
+            err = np.abs(phi_old - phi)
+            max_err = np.max(err)
+            max_err_loc = np.argmin(np.abs(max_err - err ))
 
-        phi_old = np.copy(phi)
-        count += 1
-        # print(iteration, ' iteration', max_err, ' maximum error')
-        if count  == 1000:
+            phi_old = np.copy(phi)
+            count += 1
+            # print(iteration, ' iteration', max_err, ' maximum error')
+            if count  == 1000:
 
-            print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
-            print(phi, 'phi')
-            count = 0
-        if max_err <= tol or iteration >= maxits:
-            print(iteration, 'iterations required to converge')
-            tolerance_achieved = True
-            if wynn_epsilon == True and laststep == True:
-                phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
-                phi_ob_we.make_phi(psi, ws)
-                phi = phi_ob_we.phi
-                tableau = phi_ob_we.tableau 
-                tableau_J = phi_ob_we.tableauJp
-                # print(phi-phi_old)
-            else:
-                tableau = phi_ob.tableau
-                tableau_J = phi_ob.tableauJp
+                print(iteration, ' iteration', max_err, ' maximum error', cell_centers[max_err_loc], 'max err x location' )
+                print(phi, 'phi')
+                count = 0
+            if max_err <= tol or iteration >= maxits:
+                print(iteration, 'iterations required to converge')
+                tolerance_achieved = True
+                if wynn_epsilon == True and laststep == True:
+                    phi_ob_we =  scalar_flux_class(N_ang, N_cells, mesh, True, quad_type)
+                    phi_ob_we.make_phi(psi, ws)
+                    phi = phi_ob_we.phi
+                    tableau = phi_ob_we.tableau 
+                    tableau_J = phi_ob_we.tableauJp
+                    # print(phi-phi_old)
+                else:
+                    tableau = phi_ob.tableau
+                    tableau_J = phi_ob.tableauJp
 
     if geometry =='sphere':
 
@@ -439,11 +461,11 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     for k in range(N_cells):
                         if ang_diff_type == 'SH':
                             # ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
-                            # ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
+                            ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
                             alpham = 0
                             if iang>0:
                                 alpham = alphas[iang-1]
-                            ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
+                            # ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
                             # ang_diff_term2[:, k] = moment0_Legendre(mu_halfs, N_psi_moments, psi_moments[:, k], N_ang)
                         elif ang_diff_type == 'SHDPN':
                             ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu)

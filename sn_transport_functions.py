@@ -447,7 +447,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
     # print(sigma_s, 'scattering')
     # print(sigma_t, 'total')
     # print(mesh)
-    fac = 1
+    fac = 0.5
     psiplus_origin_new = psiplus_origin.copy()
     if mun >0.0:
         for k in range(0, N_cells):
@@ -495,6 +495,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                     # if k ==0:
                     #     ang_diff_term[k] *=0
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]* fac   + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - 1/Vi* ang_diff_term[k]* fac   + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                     
                     moment0SH = ang_diff_term[k]
@@ -544,13 +545,16 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 psin[k] = psiminus_mu[k]
                 psiplus_new =  2 * psin[k] - psiplus
                 psiplus = psiplus_new
+
             else:
                 if diff_type == 'diamond':
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                 elif diff_type =='SH' or diff_type == 'SHDPN':
                     # if k ==0:
+
                     #     ang_diff_term[k] *=0
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus - (Aplus - Aminus) * ang_diff_term[k] * fac + Vi * q)
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus -  (Aplus - Aminus) * ang_diff_term[k] * fac + Vi * q)
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus -  1/Vi * ang_diff_term[k] * fac + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                     moment0SH = ang_diff_term[k]
                     moment0DD = 2/wn  * alphaplus * psin[k] - 1/wn  * (alphaplus + alphaminus) * psiminus_mu[k]
