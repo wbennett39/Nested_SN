@@ -439,7 +439,7 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
 
 
 # @njit
-def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs, diff_type = 'diamond', psiplus_origin = 0.0):
+def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiplusright, ang_diff_term, psi_at_halfs, diff_type = 'diamond', psiplus_origin = 0.0):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
     phi = phi *sigma_s
@@ -447,10 +447,16 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
     # print(sigma_s, 'scattering')
     # print(sigma_t, 'total')
     # print(mesh)
-    fac = 0.5
+    if diff_type == 'SH':
+        fac = 0.5
+    elif diff_type == 'SHDPN':
+        fac = 0.5
+    else:
+        fac = 1
     psiplus_origin_new = psiplus_origin.copy()
     if mun >0.0:
         for k in range(0, N_cells):
+                
             # if k ==0:
             #     psin[0] = psi_refl
             #     psiminus = psin[0]
@@ -462,17 +468,25 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
 
                 if k < N_cells-1:
 
-                    rplus = 0.5 * (mesh[k+1] + mesh[k])
+                    # rplus = 0.5 * (mesh[k+1] + mesh[k])
+                    rplus = mesh[k+1]
+                    dr = mesh[k+1]-mesh[k]
                 else:
-                    rplus = mesh[k] + (mesh[k-1] - mesh[k-2])/2
+                    # rplus = mesh[k] + (mesh[k-1] - mesh[k-2])/2
+                    rplus = mesh[k] + (mesh[k-1] - mesh[k-2])
+
+                    dr = mesh[k] - mesh[k-1]
                 if k>0:
-                    rminus = 0.5 * (mesh[k] + mesh[k-1])
+                    # rminus = 0.5 * (mesh[k] + mesh[k-1])
+                    rminus = mesh[k]
                 else:
                     rminus = 0.0
+                    dr = mesh[k+1] - mesh[k]
                 Aplus = 4 * math.pi * rplus**2
                 Aminus = 4 * math.pi * rminus**2
                 Vi = 4 * math.pi/3 * (rplus**3 - rminus**3)
-            
+                # dr = rplus - rminus
+
                 q = s[k] + phi[k]
                 qnew = 1/ Vi * 4 * math.pi * q * (rplus**3 - rminus ** 3)/3
                 q = qnew
@@ -494,7 +508,8 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 elif diff_type == 'SH' or diff_type == 'SHDPN':
                     # if k ==0:
                     #     ang_diff_term[k] *=0
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - (Aplus - Aminus) * ang_diff_term[k]* fac   + Vi * q)
+                    psin_old = psin[k].copy()
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus - fac*(Aplus-Aminus) * ang_diff_term[k] + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - 1/Vi* ang_diff_term[k]* fac   + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                     
@@ -518,13 +533,20 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
             
             if k < N_cells-1:
 
-                rplus = 0.5 * (mesh[k+1] + mesh[k])
+                # rplus = 0.5 * (mesh[k+1] + mesh[k])
+                rplus = mesh[k+1]
+                dr = mesh[k+1]-mesh[k]
             else:
-                rplus = mesh[k] + (mesh[k-1] - mesh[k-2])/2
+                # rplus = mesh[k] + (mesh[k-1] - mesh[k-2])/2
+                rplus = mesh[k] + (mesh[k-1] - mesh[k-2])
+                dr = mesh[k] - mesh[k-1]
             if k>0:
-                rminus = 0.5 * (mesh[k] + mesh[k-1])
+
+                # rminus = 0.5 * (mesh[k] + mesh[k-1])
+                rminus = mesh[k]
             else:
                 rminus = 0.0
+                dr = mesh[k+1] - mesh[k]
             if rplus <= rminus:
                 assert 0
             Aplus = 4 * math.pi * rplus**2
@@ -532,6 +554,8 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
             Vi = 4 * math.pi/3 * (rplus**3 - rminus**3)
             qnew = 1/ Vi * 4 * math.pi * q * (rplus**3 - rminus ** 3)/3 # assuming constant flux + source in each cell
             q = qnew
+
+            # print(dr)
             # print(s[99], 's99')
             # print(s.size)
             # print(k)
@@ -553,7 +577,10 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                     # if k ==0:
 
                     #     ang_diff_term[k] *=0
-                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus -  (Aplus - Aminus) * ang_diff_term[k] * fac + Vi * q)
+                    psin_old = psin[k].copy()
+                    # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
+
+                    psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus  )**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus -  fac*(Aplus-Aminus)  * ang_diff_term[k]  + Vi * q )
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus)**-1 * (abs(mun) * (Aplus + Aminus) * psiplus -  1/Vi * ang_diff_term[k] * fac + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
                     moment0SH = ang_diff_term[k]
@@ -777,26 +804,22 @@ def legendre_difference_DPN(N_mom, mom_L, mom_R, mu):
 
 # @njit
 def moment0_Legendre(iang, mus, N_legendre, legendre_moms, N_ang, psir0):
-        res = 0.0
-    # if iang > 0:
+    res = 0.0
+    if iang > 0:
         if iang == N_ang-1:
             mup = 1
         else:
             mup = (mus[iang] + mus[iang+1]) * 0.5
-        if iang == 0:
+        if iang == 1:
             mum = -1
         else:
             mum = (mus[iang] + mus[iang-1]) * 0.5
         deltamu = mup - mum
-        if iang == 1:
-            for n in range(N_legendre):
-                res += 1/(deltamu) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mup**2) * Pn_scalar(n, mup))
-            res += 1/deltamu *(1-mum**2) * psir0 # This is just adding 0
-        else:
+    
 
-            for n in range(N_legendre):
-                res += 1/(deltamu) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mup**2) * Pn_scalar(n, mup) - (1-mum**2) * Pn_scalar(n, mum) )
-        return res
+        for n in range(N_legendre):
+            res += 1/(deltamu) * 0.5 * (2*n + 1)*legendre_moms[n] * ((1-mup**2) * Pn_scalar(n, mup) - (1-mum**2) * Pn_scalar(n, mum) )
+    return res
 
 
 
@@ -816,10 +839,22 @@ def moment0_Legendre_alphas(iang, mus, N_legendre, legendre_moms, N_ang, psir0, 
         if iang == 1:
             for n in range(N_legendre):
                 res += 1/(wn) * 0.5 * (2*n + 1)*legendre_moms[n] * (alphap * Pn_scalar(n, mup))
-            res += 1/wn *alpham * psir0 # This is just adding 0
+            # res += 1/wn *alpham * psir0 # This is just adding 0
 
         else:
 
             for n in range(N_legendre):
                 res += 1/(wn) * 0.5 * (2*n + 1)*legendre_moms[n] * (alphap * Pn_scalar(n, mup) - alpham * Pn_scalar(n, mum) )
         return res
+    
+
+
+def diverging_moments(psi_moments):
+    res = psi_moments.copy()
+    N_mom = psi_moments.shape[0]
+    K = psi_moments.shape[1]
+    for ik in range(K):
+        for n in range(1, N_mom):
+            if abs(psi_moments[n, ik]) >= abs(psi_moments[n-1, ik]):
+                res[n:, ik] *=0
+    return res

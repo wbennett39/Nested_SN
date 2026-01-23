@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere, Pn_scalar,calculate_psi_moments_DPN, legendre_difference_DPN, Pn_scalar_minus, Pn_scalar_plus, moment0_Legendre, moment0_Legendre_alphas
+from sn_transport_functions import scalar_flux_class, mesh_class, source_class, IC_class, cc_quad, sigma_class, boundary_class, mu_sweep, calculate_psi_moments, legendre_difference, mu_sweep_sphere, Pn_scalar,calculate_psi_moments_DPN, legendre_difference_DPN, Pn_scalar_minus, Pn_scalar_plus, moment0_Legendre, moment0_Legendre_alphas, diverging_moments
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from functions import quadrature
@@ -32,7 +32,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
         mus, ws = quadrature(N_ang, 'gauss_lobatto' )
     elif quad_type == 'gauss_legendre':
         mus, ws = quadrature(N_ang, 'gauss_legendre' )
-    if geometry == 'sphere' and (ang_diff_type == 'diamond' or ang_diff_type =='SH') :
+    if geometry == 'sphere' and (ang_diff_type == 'diamond' or ang_diff_type =='SH' or ang_diff_type=='SHDPN') :
         mu_halfs = np.zeros(N_ang+1)
         mu_halfs[0] = -1
         mu_halfs[-1] = 1
@@ -91,6 +91,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     outer_tolerance_achieved = False
     outer_its = 0
     psi_new = psi.copy()
+    psi_minus_half_mu = np.zeros((N_ang, N_cells))
     while outer_its < 1:
         iteration =0
         tolerance_achieved = False
@@ -232,17 +233,24 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     for k in range(N_cells):
                         
                         if ang_diff_type == 'SH':
-            
-                            # ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                            psi_moments = diverging_moments(psi_moments)
+                            psi_moments[1:, 0] *=0
+                            
+                            ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
                             alpham = 0
                             if iang>0:
                                 alpham = alphas[iang-1]
+                            
                             # ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
-                            ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
+                            # ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
                             ang_diff_term2[iang, k] = ang_diff_term[k].copy()
                             # print(ang_diff_term[k], 'ang diff term')
                             # print(psi_moments[:, k], 'moments')
                         elif ang_diff_type == 'SHDPN':
+                            psi_momentsL = diverging_moments(psi_momentsL)
+                            psi_momentsR = diverging_moments(psi_momentsR)
+                            # psi_momentsR[1:, 0] *=0
+                            psi_momentsL[1:,0] = psi_momentsR[1:,0]
                             ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu) 
                         
                         zero_mom = 0.0
@@ -265,7 +273,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                         # psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
                         
                         if plot_ang_sol == True:
-                            plt.ion()
+                            plt.ioff()
                             
                             psi_deriv = np.gradient((1-mus**2)*psi[:, k], mus)
                             # psi_deriv = mus
@@ -319,7 +327,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                                 plt.legend()
                                 if k < mesh.size:
                                     plt.title(f'x = {0.5*(mesh[k] + mesh[k+1])}')
-                                # plt.show()
+                                plt.show()
                         # print(ang_diff_term, 'diff term')
                         # print(psi_moments, 'moments')
                         # assert 0
@@ -347,17 +355,18 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
 
     
 
-                    psi_new[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type,  psiplus_origin[refl_index-iang-1])
+                    psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type,  psiplus_origin[refl_index-iang-1])
 
                     # psiplus_origin *=0
                     if iang == 0:
                         psiminus_mu = psiminus_mu_s
-                        psi[:, 0] = psi_new[iang,0]
+                        psi_origin = psiminus_mu.copy()[0]
                         
                     else:
-
-                        psiminus_mu[1:] = 2 * psi[iang][1:] - psiminus_mu.copy()[1:]
-                        psi[iang, 1:] = psi_new[iang, 1:]
+                        psiminus_mu[0:] = 2 * psi[iang][:] - psiminus_mu.copy()[:]
+                    psiplus_origin[:] = psi_origin
+                    psi_minus_half_mu[iang, :] = psiminus_mu.copy()
+                    # psi[iang] = psi_new[iang]
                         # psiminus_mu[0] = psiminus_mu_s[0]
 
                     # if ang_diff_type =='diamond':
@@ -377,7 +386,7 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             phi = phi_ob.phi
             if ang_diff_type == 'SHDPN' or ang_diff_type =='SH':
                 if plot_ang_sol == True:
-                    plt.ion() 
+                    plt.ioff() 
                     plt.figure('scalar flux')
 
                     plt.plot(cell_centers, phi)
@@ -420,15 +429,19 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
     if geometry =='sphere':
 
 
-        if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN':
+        if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN' or ang_diff_type=='diamond':
             for k in range(N_cells):
-                if ang_diff_type == 'SH':
+                if ang_diff_type == 'SH' or ang_diff_type =='diamond':
                     # psi[int(N_ang/2):,0] = psi[:int(N_ang/2),0]
                     psi_moments[:, k] = calculate_psi_moments(N_psi_moments, psi[:,k], ws, N_ang, mus)
                 
                 elif ang_diff_type == 'SHDPN':
                     psi_momentsL[:, k], psi_momentsR[:, k] = calculate_psi_moments_DPN(N_psi_moments, psi[:,k], ws, N_ang, mus)
-                # psi_moments[0, 1:] *= 0
+        for imn in range(N_psi_moments):
+             if imn %2 != 0:
+                  psi_moments[imn, 0] *=0
+        print(psi_moments[:,0])
+
 
     psir0 = psi[0,:]
     for iang, mu in enumerate(mus):
@@ -457,17 +470,40 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
             elif mu <0:
                 psiplusright = boundary_ob('right', mu)
             if geometry == 'sphere':
-                if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN':
+                
+                if iang >0:
+                    alphaplus = alphas[iang]
+                    alphaminus = alphas[iang-1]
+
+                else:
+                    alphaplus = 0
+                    alphaminus = 0
+
+                if ang_diff_type == 'SH' or ang_diff_type == 'SHDPN' or ang_diff_type == 'diamond':
+                    # psir0 = 
                     for k in range(N_cells):
                         if ang_diff_type == 'SH':
-                            # ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
-                            ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
+                            psi_moments = diverging_moments(psi_moments)
+                            psi_moments[1:, 0] *=0
+                            
+                            ang_diff_term[k] = legendre_difference(N_psi_moments, psi_moments[:,k], mu) 
+                            # ang_diff_term[k] = moment0_Legendre(iang, mus, N_psi_moments, psi_moments[:, k], N_ang, psir0[k])
+                            # ang_diff_term[k] = 1/ws[iang] * (alphaplus * psiplus - alpham * psiminus)
+                            # ang_diff_term[k] = 2/ws[iang] * psi[iang, k] * alphaplus -1/ws[iang] * (alphaplus + alphaminus) * psi_minus_half_mu[iang, k]
+                  
+
+                            # ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
+
                             alpham = 0
                             if iang>0:
                                 alpham = alphas[iang-1]
                             # ang_diff_term[k] = moment0_Legendre_alphas(iang, mus, N_psi_moments, psi_moments[:,k], N_ang, psir0[k], ws[iang], alphas[iang], alpham)
                             # ang_diff_term2[:, k] = moment0_Legendre(mu_halfs, N_psi_moments, psi_moments[:, k], N_ang)
                         elif ang_diff_type == 'SHDPN':
+                            psi_momentsL = diverging_moments(psi_momentsL)
+                            psi_momentsR = diverging_moments(psi_momentsR)
+                            # psi_momentsR[1:, 0] *=0
+                            psi_momentsL[1:,0] = psi_momentsR[1:,0]
                             ang_diff_term[k] = legendre_difference_DPN(N_psi_moments, psi_momentsL[:,k], psi_momentsR[:,k], mu)
 
                     # zero_mom = 0.0
@@ -481,23 +517,23 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
 
                 
 
-            if geometry == 'sphere':
-                if iang >0:
-                    alphaplus = alphas[iang]
-                    alphaminus = alphas[iang-1]
-                else:
-                    alphaplus = 0
-                    alphaminus = 0
-                psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, ang_diff_term, psi_at_halfs[iang],ang_diff_type,  psiplus_origin[refl_index-iang-1])
+            
+                psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang],ang_diff_type,  psiplus_origin[refl_index-iang-1])
                 if iang == 0:
-                    psiminus_mu = psiminus_mu_s
+                        psiminus_mu = psiminus_mu_s
+                        psi_origin = psiminus_mu.copy()[0]
+                        
                 else:
-                    psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
+                        psiminus_mu[0:] = 2 * psi[iang][:] - psiminus_mu.copy()[:]
+                psiplus_origin[:] = psi_origin
+                psi_minus_half_mu[iang, :] = psiminus_mu.copy()
                 #   psiminus_mu = psi[iang]
                 # else:
                 #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
             else:
                 psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
+    phi_ob.make_phi(psi, ws)
+    phi = phi_ob.phi
 
     J = np.zeros(2)
     J[0] = phi_ob.J(psi[:,0])
