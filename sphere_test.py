@@ -11,7 +11,7 @@ def run_problem(cells = 10, N_ang = 8, L =10):
     psib, phib, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
                 opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = L, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e3, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 1, ang_diff_type = 'diamond')  
     psib2, phib2, cell_centersb2, musb2, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = N_ang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
-                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = L, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e3, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = int(N_ang/2), ang_diff_type = 'SH')            
+                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = L, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e3, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = int(N_ang), ang_diff_type = 'SH')            
     
     L = 1/3/100
     plt.ion()
@@ -29,7 +29,7 @@ def run_problem(cells = 10, N_ang = 8, L =10):
 
 # run_problem(cells = 5)
 
-run_problem(cells = 10)
+run_problem(cells = 20)
 # run_problem(cells = 100)
 def RMSE(l1, l2):
     temp = (l1-l2)**2
@@ -47,7 +47,7 @@ def convergence(cells = 10):
         psiD, phiD, cell_centersb, musb, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = iang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
                 opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e4, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = 1, ang_diff_type = 'diamond')  
         psib2, phib2, cell_centersb2, musb2, tableaub, Jb, tableauJb, sigmas = solve(N_cells = cells, N_ang = iang, left_edge = 'cold', right_edge = 'cold', IC = 'cold', source = 'volume',
-                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e4, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = iang-1, ang_diff_type = 'SH')            
+                opacity_function = 'constant', wynn_epsilon = False, laststep = False,  L = 10, tol = 1e-13, source_strength = 1.0, sigma_a = 0, sigma_s = 1.0, sigma_t = 1.0,  strength = [0.0,1], maxits = 1e4, input_source = np.array([0.0]), quad_type='gauss_legendre', geometry = 'sphere', N_psi_moments = int(iang), ang_diff_type = 'SH')            
         RMSE_diamond.append(RMSE(phiD, phib))
         RMSE_SH.append(RMSE(phib2, phib))
     

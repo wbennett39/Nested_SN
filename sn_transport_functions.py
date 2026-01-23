@@ -438,7 +438,7 @@ def mu_sweep(N_cells, psis, mun, sigma_t, sigma_s, mesh, s, phi, psiminusleft, p
     return psin
 
 
-# @njit
+@njit
 def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, s, phi, psiplusright, ang_diff_term, psi_at_halfs, diff_type = 'diamond', psiplus_origin = 0.0):
     psin = psis * 0
     # sigma_t = sigma_a + sigma_s
@@ -453,7 +453,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
         fac = 0.5
     else:
         fac = 1
-    psiplus_origin_new = psiplus_origin.copy()
+    psiplus_origin_new = psiplus_origin
     if mun >0.0:
         for k in range(0, N_cells):
                 
@@ -508,7 +508,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                 elif diff_type == 'SH' or diff_type == 'SHDPN':
                     # if k ==0:
                     #     ang_diff_term[k] *=0
-                    psin_old = psin[k].copy()
+                    # psin_old = psin[k].copy()
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus - fac*(Aplus-Aminus) * ang_diff_term[k] + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus)**-1 * (abs(mun) * (Aplus + Aminus) * psiminus - 1/Vi* ang_diff_term[k]* fac   + Vi * q)
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aplus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiminus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
@@ -577,7 +577,7 @@ def mu_sweep_sphere(N_cells, psis, mun, wn, psiminus_mu, alphaplus, alphaminus, 
                     # if k ==0:
 
                     #     ang_diff_term[k] *=0
-                    psin_old = psin[k].copy()
+                    # psin_old = psin[k].copy()
                     # psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus + 2/wn *(Aplus - Aminus) * alphaplus)**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus + 1/wn * (Aplus-Aminus) * (alphaplus + alphaminus) * psiminus_mu[k] + Vi * q)
 
                     psin[k] = (sigma_t[k] * Vi + 2 * abs(mun) * Aminus  )**(-1) * (abs(mun) * (Aplus + Aminus) * psiplus -  fac*(Aplus-Aminus)  * ang_diff_term[k]  + Vi * q )
