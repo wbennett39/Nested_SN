@@ -266,9 +266,6 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                                     plt.title(f'x = {0.5*(mesh[k] + mesh[k+1])}')
                                 plt.show()
 
-
-
-         
                 if geometry == 'sphere':
                     if iang >0:
                         alphaplus = alphas[iang]
@@ -277,14 +274,14 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                     else:
                         alphaplus = alphas[iang]
                         alphaminus = 0
-        
-                    # print(mu_halfs[iang], 'mu half')
-
-    
-
-                    psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type,  psiplus_origin[refl_index-iang-1])
-
-                    # psiplus_origin *=0
+                    if ang_diff_type == 'diamond':
+                        psi_0_input = psiplus_origin[refl_index-iang-1]
+                    elif ang_diff_type == 'SH':
+                        # psi_0_input = psiplus_origin[refl_index-iang]
+                        psi_0_input = 0.0
+                        for n in range(N_psi_moments):
+                            psi_0_input += 0.5*(2*n+1)*psi_moments[n, 0] * Pn_scalar(n,1 )
+                    psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang], ang_diff_type, psi_0_input)
                     if iang == 0:
                         psiminus_mu = psiminus_mu_s
                         psi_origin = psiminus_mu.copy()[0]
@@ -293,21 +290,9 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
                         psiminus_mu[0:] = 2 * psi[iang][:] - psiminus_mu.copy()[:]
                     psiplus_origin[:] = psi_origin
                     psi_minus_half_mu[iang, :] = psiminus_mu.copy()
-                    # psi[iang] = psi_new[iang]
-                        # psiminus_mu[0] = psiminus_mu_s[0]
-
-                    # if ang_diff_type =='diamond':
-                    # if iang == 0:
-                    #     psiminus_mu = psi[iang]
-                    # else:    
-                    #     psiminus_mu = 2 * psi[iang] - psiminus_mu.copy()
+                   
                 else:
                     psi[iang] = mu_sweep(N_cells, psi[iang], mu, sigma_t, sigma_s, mesh, snew, phi, psiminusleft, psiplusright, geometry)
-            # for k in range(N_cells):
-            #     print(np.sum(ang_diff_term2[1:, k] * (mu_halfs[1:] - mu_halfs[:-1])), 'ang diff sum 0')
-        
-            # print(ang_diff_term2)
-            # assert 0
                 
             phi_ob.make_phi(psi, ws)
             phi = phi_ob.phi
@@ -448,8 +433,14 @@ def solve(N_cells = 500, N_ang = 136, left_edge = 'source1', right_edge = 'sourc
 
                 
 
-            
-                psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang],ang_diff_type,  psiplus_origin[refl_index-iang-1])
+                if ang_diff_type == 'diamond':
+                     psi_0_input = psiplus_origin[refl_index-iang-1]
+                elif ang_diff_type == 'SH':
+                    #  psi_0_input = psiplus_origin[refl_index-iang]
+                    psi_0_input = 0.0
+                    for n in range(N_psi_moments):
+                         psi_0_input += 0.5*(2*n+1)*psi_moments[n, 0] * Pn_scalar(n,1 )
+                psi[iang], psiminus_mu_s, psiplus_origin[iang], psi_at_halfs[iang] = mu_sweep_sphere(N_cells, psi[iang], mu,  ws[iang], psiminus_mu, alphaplus, alphaminus, sigma_t, sigma_s, mesh, snew, phi, psiplusright, ang_diff_term, psi_at_halfs[iang],ang_diff_type,  psi_0_input)
                 if iang == 0:
                         psiminus_mu = psiminus_mu_s
                         psi_origin = psiminus_mu.copy()[0]

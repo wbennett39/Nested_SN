@@ -88,4 +88,4 @@ def convergence(cells = 10):
 
 
 
-convergence(cells = 20)
+convergence(cells = 30)
